@@ -1,64 +1,25 @@
-<!-- <expression> ::= <*-expression> | <literal> | <identifier>
-<expressions> ::= <expression> | <expression> <expressions>
-
-<multi-expression> ::= "(" <expressions> ")"
-
-<load-by-ptr-expression> ::= "(" "@" <identifier> ")"
-
-<if-expression> ::= "(" "if" <expression> <if-body> ")"
-<if-body> ::= <expression> | <expression> <expression>
-
-<alloc-str-expression> ::= "(" "alloc_str" <identifier> <int-literal> ")"
-
-<set-ptr-expression> ::= "(" "set_ptr" <identifier> <expression> ")"
-
-<set-expression> ::= "(" "set" <identifier> <expression> ")"
-
-<loop-while-expression> ::= "(" "loop" "while" <expression> "do" <expressions> ")"
-
-<put-char-expression> ::= "(" "put_char" <expression> ")"
-<get-char-expression> ::= "(" "get_char" ")"
-
-<let-var> ::= "(" <identifier> <expression> ")"
-<let-vars> ::= <let-var> | <let-var> <let-vars>
-<let-expression> ::= "(" "let" "(" <let-vars> ")" <expressions> ")"
-
-<math-expression> ::= "(" <math-op> <expression> <expression> ")"
-<math-op> ::= ">" | ">=" | "<" | "<=" | "=" | "!=" | "+" | "-" | "<<" | ">>"
-
-<defun-expression> ::= "(" "defun" <identifier> "(" <identifiers> ")" <expressions> ")"
-
-<func-call-expression> ::= "(" <identifier> <expressions> ")"
-
-<identifiers> ::= <identifier> | <identifier> <identifiers>
-<identifier> ::= [a-zA-Z]+
-
-<literal> ::= <string-literal> | <int-literal> | <bool-literal>
-<string-literal> ::= "\"" [a-zA-Z]+ "\""
-<int-literal> ::= [0-9]+
-<bool-literal> ::= "true" | "false"
-
-<macro> :: "#include " .+ <EOL> -->
-
-
-<expression> ::= <literal> | <identifier> | <expression>
-<expressions> ::= <expression> <expressions> | <None>
+<!-- only expression can hold undefined multi node, and they an be anything -->
+<expression> ::= "(" <literal> | <identifier> | <expression>* ")" 
 <integer-literal> ::= [0-9]+
 <string-literal> ::= "\"" [a-zA-Z]+ "\""
 <boolean-literal> ::= "true"|"false"
-<literal> ::= <integer-literal> | <string-literal> | <boolean-literal>
+<literal> ::= <integer-literal> | <string-literal> | <boolean-literal> | <expression>
 
-<defun-expression> ::= "(" "defun" <identifier> "(" <identifiers> ")" <expressions> ")"
-<func-call-expression> ::= "(" <identifier> <expressions> ")"
+<defun-expression> ::= "(" "defun" <identifier> <expression> <expression> ")"
 
-<loop-expression> ::= "(" "loop" ":" "for" <identifier> ":" "from" <identifier> ":" "to" <identifier> ":" "do" <expressions> ")" 
+<func-call-expression> ::= "(" call <identifier> <expression> ")"
+
+<from-expression> ::= from <literal>
+<to-expression> ::= "to" <literal>
+<for-expression> ::= "for" <identifier> <from-expression> <to-expression>
+<loop-expression> ::= "(" "loop"  <for-expression> <expression> ")" 
 <set-expression> ::= "(" "setq" <identifier> <literal>|<expressions> ")"
-<if-expression> ::= "(" "if" "(" <expression> ")" "(" <expressions> ")" ")"
+<if-expression> ::= "(" "if" <expression> <expression> ")"
 
 <print-expression> ::= "(" "format" "t" <literal> ")"
 
 <logical-operator> ::= "<" | "=" | ">" | "<=" | ">=" | "\=" | "|" | "&" | "~"
-<logical-expression> ::= <logical-operator> <expresision> <expression>
+<logical-expression> ::= <logical-operator> <literal> <literal>
 
 <mathematic-operator> ::= "+" | "-" | "*" | "/"
-<mathematic-expression> ::= <mathematic-operator> <expresision> <expression>
+<mathematic-expression> ::= <mathematic-operator> <expresision>

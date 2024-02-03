@@ -27,7 +27,7 @@ class Lexer:
                         for b in re.split(r'(\))', a):
                             if(len(b) > 0):
                                 if(SPECIAL_CHARACTER.is_Special_Character(b[0])):
-                                    self.hasher.append(b[0])
+                                    # self.hasher.append(b[0])
                                     if(len(b[slice(1,-1)]+ b[-1]) > 0):
                                         self.hasher.append(b[slice(1,-1)] + b[-1]) 
                                 else:

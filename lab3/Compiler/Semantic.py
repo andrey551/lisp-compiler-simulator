@@ -71,7 +71,6 @@ class KEYWORD(Enum):
     PRINT = 'format'
     INPUT = 'readline'
     LIST = 'list'
-    TEMP = 't'
     FOR = 'for'
     REPEAT = 'repeat'
     DO = 'do'
