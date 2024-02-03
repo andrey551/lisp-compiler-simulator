@@ -1,0 +1,7 @@
+{
+    "python.analysis.extraPaths": [
+        "./lab3/Common",
+        "./lab3/Common",
+        "./lab3/Compiler"
+    ]
+}
