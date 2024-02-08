@@ -58,23 +58,15 @@ class LOGICAL_OPERATOR(Enum):
         except ValueError:
             return False
 class KEYWORD(Enum):
-    LAMBDA = 'lambda'
     LET = 'let'
     IF = 'if'
-    CONDITION = 'cond'
-    QUOTE = 'quote'
-    SET = 'setq'
+    SET = 'set'
     DEFINE_FUNC = 'defun'
-    DEFINE_GLOBAL = 'defvar'
-    DEFINE_MACRO = 'defmacro'
     LOOP = 'loop'
     PRINT = 'format'
-    INPUT = 'readline'
-    LIST = 'list'
+    INPUT = 'input'
     FOR = 'for'
-    REPEAT = 'repeat'
     DO = 'do'
-    DOTIMES = 'dotimes'
     FROM = 'from'
     TO = 'to'
     @classmethod
@@ -114,3 +106,145 @@ def to_Token(word):
     if(is_String(word)):
         return {'STRING' : word}
     return {'IDENTIFIER' : word}
+
+class Opcode(Enum):
+    RET: str = "RET"
+    NOP: str = "NOP"
+    HALT : str = "HTL"
+    DI : str = "DI"
+    EI : str = "EI"
+    JMP : str = "JMP"
+    CALL : str = "CALL"
+    BEQ : str = "BEQ"
+    BGT : str = "BGT"
+    IN : str = "IN"
+    OUT : str = "OUT"
+    PUSH : str = "PUSH"
+    POP : str = "POP"
+    LOAD : str = "LOAD"
+    STORE : str = "STORE"
+    ADD : str = "ADD"
+    SUB: str = "SUB"
+    MUL: str = "MUL"
+    DIV: str = "DIV"
+    MOD: str = "MOD"
+    AND: str = "AND"
+    OR: str = "OR"
+    LSL: str = "LSL"
+    LSR: str = "LSR"
+    ASR: str = "ASR"
+    CMP: str = "CMP"
+    MOV: str = "MOV"
+    NOT: str = "NOT"
+
+    def __str__(self) -> str:
+        return self.value
+class code_generate():
+    def generate_ret(self):
+        return 0x10000000
+    def generate_nop(self):
+        return 0x00000000
+    def generate_halt(self):
+        return 0xF8000000
+    def generate_di(self):
+        return 0xC8000000
+    def generate_ei(self):
+        return 0xD0000000
+    def generate_jmp(self, offset):
+        return (0x1 << 28 | offset)
+    def generate_call(self, offset):
+        return (0x18 << 24 | offset)
+    def generate_beq(self, offset):
+        return (0x2 << 28 | offset)
+    def generate_bgt(self, offset):
+        return (0x28 << 24 | offset)
+    def generate_in(self, offset):
+        return (0x3<<28 | offset)
+    def generate_out(self, offset):
+        return (0x38 << 24 | offset)
+    def generate_push(self, offset):
+        return (0x4 << 28 | offset)
+    def generate_pop(self, offset):
+        return 0x48 << 24 | offset
+    def generate_load(self, reg_des, reg_src, imm):
+        return (((0x54 << 24 | reg_des << 22) | reg_src << 18) | imm)
+    def generate_store(self, reg_des, reg_src, imm):
+        return (((0x5C << 24 | reg_des << 22) | reg_src << 18) | imm)
+    def generate_add(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x6<<28 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x6<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else:
+            pass
+    def generate_sub(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x68 << 24 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x68 << 24 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else:
+            pass 
+    def generate_mul(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x7<<28 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x7<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
+    def generate_div(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x78<<24 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x78<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_mod(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x8<<28 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x8<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_and(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x88<<24 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x88<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_or(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x9<<28 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x9<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_lsl(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0x98<<24 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0x98<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_lsr(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0xA<<28 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0xA<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_asr(self, mode, dest, src1, src2):
+        if(mode == 0):
+            return 0xA8<<24 |dest << 22 | src1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0xA8<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
+        else :
+            pass
+    def generate_cmp(self, mode, reg_src_1, src2):
+        if(mode == 0):
+            return 0xB0 << 24 | reg_src_1 << 18 | src2 << 14
+        elif(mode == 1):
+            return 0xB4 << 24 | reg_src_1 << 18 | src2
+    def generate_mov(self, mode, reg_dest, src):
+        if(mode == 0):
+            return 0xB0 << 24 | reg_dest << 18 | src << 14
+        elif(mode == 1):
+            return 0xB4 << 24 | reg_dest << 18 | src

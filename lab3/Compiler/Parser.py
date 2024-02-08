@@ -13,6 +13,8 @@ class node(ABC):
         print(level * "    ", self.name, " : ", self.value)
         for i in self.children:
             i.print(level + 1)
+    def set_address(self, addr: hex):
+        self.address = addr
     @abstractmethod
     def build(self):
         pass
@@ -125,6 +127,16 @@ class call(node):
     def build(self):
         pass
 
+class input(node):
+    def __init__(self, 
+               tokens, 
+               name = None, 
+               value = None):
+        node.__init__(self, tokens, name, value)
+        self.params = 1
+    def build(self):
+        pass
+
 class for_clause(node):
     def __init__(self, 
                tokens, 
@@ -200,24 +212,6 @@ class to(node):
     def build(self):
         pass
 
-
-def exp2exps(exp : expression):
-    counter = 0
-    stack = []
-    tokens = exp.tokens
-    values = list(tokens.values())
-    for i in range(len(tokens)):
-        if(values[i] == '('):
-            counter = counter + 1
-        elif(values[i] == ')'):
-            counter = counter - 1
-            if(counter  == 0):
-                exp.children.append(expression(stack))
-                stack.clear()
-        else:
-            if(counter == 0):
-                pass
-
 def tokensToNodes(tokens):
     ret = []
     keys = [key for dictionary in tokens for key in dictionary.keys()]
@@ -256,6 +250,8 @@ def tokensToNodes(tokens):
                 ret.append(fr(tokens[i], keys[i], values[i]))
             elif(values[i] == 'to'):
                 ret.append(to(tokens[i], keys[i], values[i]))
+            elif(values[i] == 'input'):
+                ret.append(input(tokens[i], keys[i], values[i]))
             else:
                 pass
         else:
