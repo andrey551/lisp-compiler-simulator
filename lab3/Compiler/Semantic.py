@@ -107,38 +107,6 @@ def to_Token(word):
         return {'STRING' : word}
     return {'IDENTIFIER' : word}
 
-class Opcode(Enum):
-    RET: str = "RET"
-    NOP: str = "NOP"
-    HALT : str = "HTL"
-    DI : str = "DI"
-    EI : str = "EI"
-    JMP : str = "JMP"
-    CALL : str = "CALL"
-    BEQ : str = "BEQ"
-    BGT : str = "BGT"
-    IN : str = "IN"
-    OUT : str = "OUT"
-    PUSH : str = "PUSH"
-    POP : str = "POP"
-    LOAD : str = "LOAD"
-    STORE : str = "STORE"
-    ADD : str = "ADD"
-    SUB: str = "SUB"
-    MUL: str = "MUL"
-    DIV: str = "DIV"
-    MOD: str = "MOD"
-    AND: str = "AND"
-    OR: str = "OR"
-    LSL: str = "LSL"
-    LSR: str = "LSR"
-    ASR: str = "ASR"
-    CMP: str = "CMP"
-    MOV: str = "MOV"
-    NOT: str = "NOT"
-
-    def __str__(self) -> str:
-        return self.value
 class code_generate():
     def generate_ret(self):
         return 0x10000000
@@ -162,10 +130,20 @@ class code_generate():
         return (0x3<<28 | offset)
     def generate_out(self, offset):
         return (0x38 << 24 | offset)
-    def generate_push(self, offset):
-        return (0x4 << 28 | offset)
-    def generate_pop(self, offset):
-        return 0x48 << 24 | offset
+    def generate_push(self, mode, src):
+        if(mode == 0):
+            return 0x4 << 28 | src << 14
+        elif(mode == 1):
+            return 0x44<< 24 | src
+        else:
+            pass
+    def generate_pop(self,mode, src):
+        if(mode == 0):
+            return 0x48 << 24 | src << 14
+        elif(mode == 1):
+            return 0x4C<< 24 | src
+        else:
+            pass
     def generate_load(self, reg_des, reg_src, imm):
         return (((0x54 << 24 | reg_des << 22) | reg_src << 18) | imm)
     def generate_store(self, reg_des, reg_src, imm):
@@ -244,7 +222,23 @@ class code_generate():
         elif(mode == 1):
             return 0xB4 << 24 | reg_src_1 << 18 | src2
     def generate_mov(self, mode, reg_dest, src):
-        if(mode == 0):
-            return 0xB0 << 24 | reg_dest << 18 | src << 14
-        elif(mode == 1):
-            return 0xB4 << 24 | reg_dest << 18 | src
+            return 0xB0 << 24 |mode <<25 | reg_dest << 21 | src << 17
+    def generate_int(self, value):
+        return value & 0x7FFFFFFF
+    def generate_bool(self, value):
+        return value & 0x7FFFFFFF
+    def generate_string(self, value):
+        ret = []
+        ret.append(0x80000000 | len(value))
+        i = 0
+        while(i + 3 < len(value)):
+            ret.append(ord(value[i]) << 24 
+                       | ord(value[i + 1]) << 16 
+                       | ord(value[i + 2]) << 8 
+                       | ord(value[i + 3]))
+            i = i + 4
+        temp = 0xFFFFFFFF
+        while(i < len(value)) :
+            temp = temp & value[i] << (i % 4) * 8
+        ret.append(temp)
+        return ret
