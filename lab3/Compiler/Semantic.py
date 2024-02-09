@@ -107,122 +107,108 @@ def to_Token(word):
         return {'STRING' : word}
     return {'IDENTIFIER' : word}
 
+class Opcode(Enum):
+    RET = 1
+    NOP = 0
+    HALT = 31
+    DI = 25
+    EI = 26
+    JMP = 2
+    CALL = 3
+    BEQ = 4
+    BGT = 5
+    IN = 6
+    OUT = 7
+    PUSH = 8
+    POP = 9
+    LOAD = 10
+    STORE = 11
+    CMP = 22
+    MOV = 23
+    NOT = 24
+    ADD = 12
+    SUB = 13
+    MUL = 14
+    DIV = 15
+    MOD = 16
+    AND = 17
+    OR = 18
+    LSL = 19
+    LSR = 20
+    ASR = 21
+class Mode(Enum):
+    DIRECT_REG = 0
+    INDIRECT_REG = 1
+    ADDRESS = 2
+    VALUE = 3
 class code_generate():
-    def generate_ret(self):
-        return 0x10000000
-    def generate_nop(self):
-        return 0x00000000
-    def generate_halt(self):
-        return 0xF8000000
-    def generate_di(self):
-        return 0xC8000000
-    def generate_ei(self):
-        return 0xD0000000
-    def generate_jmp(self, offset):
-        return (0x1 << 28 | offset)
-    def generate_call(self, offset):
-        return (0x18 << 24 | offset)
-    def generate_beq(self, offset):
-        return (0x2 << 28 | offset)
-    def generate_bgt(self, offset):
-        return (0x28 << 24 | offset)
-    def generate_in(self, offset):
-        return (0x3<<28 | offset)
-    def generate_out(self, offset):
-        return (0x38 << 24 | offset)
-    def generate_push(self, mode, src):
-        if(mode == 0):
-            return 0x4 << 28 | src << 14
-        elif(mode == 1):
-            return 0x44<< 24 | src
-        else:
-            pass
-    def generate_pop(self,mode, src):
-        if(mode == 0):
-            return 0x48 << 24 | src << 14
-        elif(mode == 1):
-            return 0x4C<< 24 | src
-        else:
-            pass
-    def generate_load(self, reg_des, reg_src, imm):
-        return (((0x54 << 24 | reg_des << 22) | reg_src << 18) | imm)
-    def generate_store(self, reg_des, reg_src, imm):
-        return (((0x5C << 24 | reg_des << 22) | reg_src << 18) | imm)
-    def generate_add(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x6<<28 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x6<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else:
-            pass
-    def generate_sub(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x68 << 24 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x68 << 24 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else:
-            pass 
-    def generate_mul(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x7<<28 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x7<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
-    def generate_div(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x78<<24 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x78<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
+
+    def generate_zero_address(self, op : Opcode):
+        return op.value
+    def generate_one_address(self, op : Opcode, mode : Mode, src):
+        if(mode == Mode.DIRECT_REG 
+           or mode == Mode.INDIRECT_REG):
+            return op.value << 6 | mode.value << 4 | src
+        elif(mode == Mode.ADDRESS 
+             or mode == Mode.VALUE):
+            return op.value << 18 | mode.value << 16 | src
+    def generate_two_address(self, 
+                             op: Opcode, 
+                             mode_1 : Mode, 
+                             mode_2 : Mode, 
+                             src1, 
+                             src2):
+        if(mode_1 == Mode.DIRECT_REG 
+           or mode_1 == Mode.INDIRECT_REG):
+            if(mode_2 == Mode.DIRECT_REG
+               or mode_2 == Mode.INDIRECT_REG):
+                return op.value << 12 | mode_1.value << 10 | mode_2.value << 8 | src1 << 4 | src2
+            else :
+                return op.value << 24 | mode_1.value << 22 | mode_2.value << 20 | src1 << 16 | src2
         else :
-            pass
-    def generate_mod(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x8<<28 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x8<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
+            if(mode_2 == Mode.DIRECT_REG
+               or mode_2 == Mode.INDIRECT_REG):
+                return op.value << 24 | mode_1.value << 22 | mode_2.value << 20 | src1 << 4 | src2
+            else :
+                return op.value << 36 | mode_1.value << 34 | mode_2.value << 32 | src1 << 16 | src2
+
+    def generate_three_address(self,
+                               op: Opcode,
+                               mode_1: Mode,
+                               mode_2: Mode,
+                               mode_3: Mode,
+                               src1,
+                               src2,
+                               src3):
+        if(mode_1 == Mode.DIRECT_REG 
+           or mode_1 == Mode.INDIRECT_REG):
+            if(mode_2 == Mode.DIRECT_REG
+               or mode_2 == Mode.INDIRECT_REG):
+                if(mode_3 == Mode.DIRECT_REG
+                    or mode_3 == Mode.INDIRECT_REG):
+                    return op.value << 18 | mode_1.value << 16 | mode_2.value << 14 | mode_3 << 12| src1 << 8 | src2 << 4 | src3
+                else:
+                    return op.value << 30 | mode_1.value << 28 | mode_2.value << 26 | mode_3 << 24| src1 << 20 | src2 << 16 | src3
+            else :
+                if(mode_3 == Mode.DIRECT_REG
+                    or mode_3 == Mode.INDIRECT_REG):
+                    return op.value << 30 | mode_1.value << 28 | mode_2.value << 26 | mode_3 << 24| src1 << 20 | src2 << 4 | src3
+                else:
+                    return op.value << 42 | mode_1.value << 40 | mode_2.value << 38 | mode_3 << 36| src1 << 32 | src2 << 16 | src3
         else :
-            pass
-    def generate_and(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x88<<24 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x88<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else :
-            pass
-    def generate_or(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x9<<28 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x9<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else :
-            pass
-    def generate_lsl(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0x98<<24 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0x98<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else :
-            pass
-    def generate_lsr(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0xA<<28 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0xA<<28 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else :
-            pass
-    def generate_asr(self, mode, dest, src1, src2):
-        if(mode == 0):
-            return 0xA8<<24 |dest << 22 | src1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0xA8<<24 | mode << 26 |dest << 22 | src1 << 18 | src2
-        else :
-            pass
-    def generate_cmp(self, mode, reg_src_1, src2):
-        if(mode == 0):
-            return 0xB0 << 24 | reg_src_1 << 18 | src2 << 14
-        elif(mode == 1):
-            return 0xB4 << 24 | reg_src_1 << 18 | src2
-    def generate_mov(self, mode, reg_dest, src):
-            return 0xB0 << 24 |mode <<25 | reg_dest << 21 | src << 17
+            if(mode_2 == Mode.DIRECT_REG
+               or mode_2 == Mode.INDIRECT_REG):
+                if(mode_3 == Mode.DIRECT_REG
+                    or mode_3 == Mode.INDIRECT_REG):
+                    return op.value << 30 | mode_1.value << 28 | mode_2.value << 26 | mode_3 << 24| src1 << 8 | src2 << 4 | src3
+                else:
+                    return op.value << 42 | mode_1.value << 40 | mode_2.value << 38 | mode_3 << 36| src1 << 20 | src2 << 16 | src3
+            else :
+                if(mode_3 == Mode.DIRECT_REG
+                    or mode_3 == Mode.INDIRECT_REG):
+                    return op.value << 42 | mode_1.value << 40 | mode_2.value << 38 | mode_3 << 36| src1 << 20 | src2 << 4 | src3
+                else:
+                    return op.value << 54 | mode_1.value << 52 | mode_2.value << 50 | mode_3 << 48| src1 << 32 | src2 << 16 | src3
     def generate_int(self, value):
         return value & 0x7FFFFFFF
     def generate_bool(self, value):
