@@ -211,7 +211,24 @@ class to(node):
         self.params = 1
     def build(self):
         pass
-
+class while_(node):
+    def __init__(self, 
+                 tokens,
+                 name = None,
+                 value = None):
+        node.__init__(self, tokens, name, value)
+        self.param = 2
+    def build(self):
+        pass
+class return_(node):
+    def __init__(self, 
+                 tokens,
+                 name = None,
+                 value = None):
+        node.__init__(self, tokens, name, value)
+        self.param = 1
+    def build(self):
+        pass
 def tokensToNodes(tokens):
     ret = []
     keys = [key for dictionary in tokens for key in dictionary.keys()]

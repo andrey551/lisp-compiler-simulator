@@ -74,7 +74,7 @@ class visitor():
     def __init__(self) :
         self.identifier = []
         self.main = []
-        self.stack_counter = 65536 
+        self.stack_counter = 65535 
         self.generator = code_generate()
     def get_lastest_identifier(self, name :str):
         for i in reversed(self.identifier):
@@ -304,7 +304,7 @@ class visitor():
                                                                     0x2))
 
                 self.main.append(self.generator.generate_one_address(Opcode.BGT,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 2))
                     
             elif(nd.value == '<'):
@@ -315,7 +315,7 @@ class visitor():
                                                                     0x0))
                 
                 self.main.append(self.generator.generate_one_address(Opcode.BGT,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 2))
             elif(nd.value == '='):
                 self.main.append(self.generator.generate_two_address(Opcode.CMP,
@@ -324,7 +324,7 @@ class visitor():
                                                                     0x0,
                                                                     0x2))
                 self.main.append(self.generator.generate_one_address(Opcode.BEQ,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 2))
                 
             elif(nd.value == '>='):
@@ -334,10 +334,10 @@ class visitor():
                                                                     0x0,
                                                                     0x2))
                 self.main.append(self.generator.generate_one_address(Opcode.BGT,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 3))
                 self.main.append(self.generator.generate_one_address(Opcode.BEQ,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 2))
                 
             elif(nd.value == '<='):
@@ -347,10 +347,10 @@ class visitor():
                                                                     0x2,
                                                                     0x0))
                 self.main.append(self.generator.generate_one_address(Opcode.BGT,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 3))
                 self.main.append(self.generator.generate_one_address(Opcode.BEQ,
-                                                                     Mode.ADDRESS,
+                                                                     Mode.VALUE,
                                                                      len(self.main) + 2))
             else:
                 raise TypeError('Missing mathematic operation!')
@@ -361,7 +361,7 @@ class visitor():
                                                                     0x0,
                                                                     0x0))
             self.main.append(self.generator.generate_one_address(Opcode.JMP,
-                                                                    Mode.ADDRESS,
+                                                                    Mode.VALUE,
                                                                     len(self.main) + 1))
             self.main.append(self.generator.generate_two_address(Opcode.LOAD,
                                                                     Mode.DIRECT_REG,
@@ -385,39 +385,142 @@ class visitor():
             if(len(nd.children) == 2):
                 first_inst_jmp = len(self.main)
                 self.main.append(self.generator.generate_one_address(Opcode.BEQ,
-                                                                    Mode.ADDRESS,
+                                                                    Mode.VALUE,
                                                                     after_exp))
                 self.visitExpressionNode(nd.children[1])
                 after_exp = len(self.main)
                 self.main[first_inst_jmp] = self.generator.generate_one_address(
                                                                     Opcode.BEQ,
-                                                                    Mode.ADDRESS,
+                                                                    Mode.VALUE,
                                                                     after_exp)
 # hard to explain, but if condition is if (condition) (expression) [after if]
-# then if condition is false, jump to [after if], but since we didn't visit expression yet, we don't know what is exactly address of address that we will jump to
-# so strategy is jump to a blind address , and after visit expression , we go back to correct that address
+# then if condition is false, jump to [after if], but since we didn't visit expression yet, 
+# we don't know what is exactly address that we will jump to
+# so strategy is jump to a blind address , and after visit expression , we go back to correct that instruction
 # same with if (condidtion) (expression) [1] (expression)[2]
-#  if(condition false : jump to [1], else after first expression, jump to [2])
+#  if condition false : jump to [1], else after first expression, jump to [2])
             if(len(nd.children) == 3):
                 first_inst_jmp = len(self.main)
                 self.main.append(self.generator.generate_one_address(Opcode.BEQ,
-                                                                    Mode.ADDRESS,
+                                                                    Mode.VALUE,
                                                                     second_exp_addr))
                 self.visitExpressionNode(nd.children[1])
                 second_exp_addr = len(self.main)
                 self.main.append(self.generator.generate_one_address(Opcode.JMP,
-                                                                     Mode.ADDRESS, 
+                                                                     Mode.VALUE, 
                                                                      after_exp))
                 self.visitExpressionNode(nd.children[2])
                 after_exp = len(self.main)
                 self.main[first_inst_jmp] = self.generator.generate_one_address(
                                                                     Opcode.BEQ,
-                                                                    Mode.ADDRESS,
+                                                                    Mode.VALUE,
                                                                     second_exp_addr)
                 self.main[second_inst_jmp] = self.generator.generate_one_address(
                                                                     Opcode.BEQ,
-                                                                    Mode.ADDRESS,
+                                                                    Mode.VALUE,
                                                                     after_exp)
+    def visitWhileNode(self, nd : node):
+        if(len(nd.children) != 2):
+            raise AttributeError('while <condition> <expression>')
+        else:
+            while_begin = len(self.data)
+            self.visitExpressionNode(nd.children[0])
+            self.main.append(self.generator.generate_two_address(Opcode.CMP,
+                                                                 Mode.DIRECT_REG,
+                                                                 Mode.VALUE,
+                                                                 0x0,
+                                                                 0x0))
+            first_instr_jmp = len(self.data)
+            self.main.append(self.generator.generate_one_address(Opcode.BEQ,
+                                                                 Mode.VALUE,
+                                                                 0x0))
+            self.visitExpressionNode(nd.children[1])
+            self.main.append(self.generator.generate_one_address(Opcode.JMP,
+                                                                 Mode.VALUE,
+                                                                 while_begin))
+            self.data[first_instr_jmp] = self.generator.generate_one_address(Opcode.BEQ,
+                                                                 Mode.VALUE,
+                                                                 len(self.data))
+    
+    def visitReturnNode(self, nd : node):
+        if(len(nd.children) != 1):
+            raise AttributeError('return <expression>')
+        else:
+            if(isinstance(literal, nd.children[0])):
+                self.main.append(self.generator.generate_two_address(Opcode.LOAD,
+                                                                     Mode.DIRECT_REG,
+                                                                     Mode.ADDRESS,
+                                                                     0x0,
+                                                                     nd.children[0].address))
+            elif(isinstance(identifier, nd.children[0])):
+                iden = self.get_lastest_identifier(nd.children[0].value)
+                self.main.append(self.generator.generate_two_address(Opcode.LOAD,
+                                                                     Mode.DIRECT_REG,
+                                                                     Mode.ADDRESS,
+                                                                     0x0,
+                                                                     iden.value))
+            elif(isinstance(expression, nd.children[0])):
+                self.visitExpressionNode(nd.children[0])
+            else:
+                raise SyntaxError('Expression is not bounded!')
+    def visitPrintNode(self, nd : node):
+        if(len(nd.children) != 1):
+            raise AttributeError('print <identifier>/ literal / <expression>')
+        else:
+            if(isinstance(literal, nd.children[0])):
+                pass
+    def visitInputNode(self, nd : node):
+        if(len(nd.children) != 1):
+            raise AttributeError("input <identifier>")
+        if(isinstance(identifier, nd.children[0]) == False):
+            raise TypeError('Require input identifier')
+        self.identifier.append(identifier_raw(nd.children[0], self.stack_counter))
+
+        ptt = len(self.data)
+        self.main.append(self.generator.generate_one_address(Opcode.PUSH,
+                                                             Mode.VALUE,
+                                                             0x8080))
+        self.main.append(self.generator.generate_two_address(Opcode.LOAD,
+                                                             Mode.DIRECT_REG,
+                                                             Mode.VALUE,
+                                                             0x2,
+                                                             0x0))
+        self.main.append(self.generator.generate_one_address(Opcode.PUSH,
+                                                                    Mode.VALUE,
+                                                                    0x0))
+        self.main.append(self.generator.generate_zero_address(Opcode.DI))
+        self.main.append(self.generator.generate_one_address(Opcode.IN,
+                                                             Mode.INDIRECT_REG,
+                                                             0x4))
+        
+        self.main.append(self.generator.generate_two_address(Opcode.CMP,
+                                                             Mode.INDIRECT_REG,
+                                                             Mode.VALUE,
+                                                             0x4,
+                                                             0xD))
+        addr = len(self.data)
+        self.main.append(self.generator.generate_one_address(Opcode.BEQ,
+                                                             Mode.VALUE,
+                                                             0x0))
+        self.main.append(self.generator.generate_one_address(Opcode.PUSH,
+                                                             Mode.DIRECT_REG,
+                                                             0x4))
+        self.main.append(self.generator.generate_three_address(Opcode.ADD,
+                                                               Mode.DIRECT_REG,
+                                                               Mode.DIRECT_REG,
+                                                               Mode.value,
+                                                               0x2,
+                                                               0x2, 
+                                                               0x1))
+        self.main[addr] = self.generator.generate_one_address(Opcode.BEQ,
+                                                             Mode.VALUE,
+                                                             len(self.data))
+        self.main.append(self.generator.generate_zero_address(Opcode.EI))
+        
+    def visitCallNode(self, nd : node):
+        pass
+    def visitDefunNode(self, nd : node):
+        pass
     def visitExpressionNode(self):
         pass
         
