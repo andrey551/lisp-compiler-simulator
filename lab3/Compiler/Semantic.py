@@ -69,6 +69,8 @@ class KEYWORD(Enum):
     DO = 'do'
     FROM = 'from'
     TO = 'to'
+    WHILE = 'while'
+    RETURN = 'return'
     @classmethod
     def is_Keyword(self,word):
         try:
@@ -142,73 +144,45 @@ class Mode(Enum):
     ADDRESS = 2
     VALUE = 3
 class code_generate():
-
-    def generate_zero_address(self, op : Opcode):
-        return op.value
-    def generate_one_address(self, op : Opcode, mode : Mode, src):
+    def generate_zero_address_instruction(self, op : Opcode):
+        return op.value << 24
+    def generate_one_address_instruction(self, op : Opcode, mode : Mode, src):
         if(mode == Mode.DIRECT_REG 
            or mode == Mode.INDIRECT_REG):
-            return op.value << 6 | mode.value << 4 | src
+            return op.value << 24 | mode.value << 20 | src << 16
         elif(mode == Mode.ADDRESS 
              or mode == Mode.VALUE):
-            return op.value << 18 | mode.value << 16 | src
-    def generate_two_address(self, 
+            return op.value << 24 | mode.value << 20 | src << 4
+    def generate_two_address_instruction(self, 
                              op: Opcode, 
                              mode_1 : Mode, 
                              mode_2 : Mode, 
                              src1, 
                              src2):
-        if(mode_1 == Mode.DIRECT_REG 
-           or mode_1 == Mode.INDIRECT_REG):
-            if(mode_2 == Mode.DIRECT_REG
-               or mode_2 == Mode.INDIRECT_REG):
-                return op.value << 12 | mode_1.value << 10 | mode_2.value << 8 | src1 << 4 | src2
-            else :
-                return op.value << 24 | mode_1.value << 22 | mode_2.value << 20 | src1 << 16 | src2
+        if(mode_1.value > 1):
+            raise ValueError('opcode <reg> <reg/address>')
         else :
             if(mode_2 == Mode.DIRECT_REG
                or mode_2 == Mode.INDIRECT_REG):
-                return op.value << 24 | mode_1.value << 22 | mode_2.value << 20 | src1 << 4 | src2
+                return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12
             else :
-                return op.value << 36 | mode_1.value << 34 | mode_2.value << 32 | src1 << 16 | src2
+                return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
 
-    def generate_three_address(self,
+    def generate_althmetic_instruction(self,
                                op: Opcode,
                                mode_1: Mode,
                                mode_2: Mode,
-                               mode_3: Mode,
                                src1,
-                               src2,
-                               src3):
-        if(mode_1 == Mode.DIRECT_REG 
-           or mode_1 == Mode.INDIRECT_REG):
+                               src2):
+        if(mode_1.value > 1):
+           raise ValueError('opcode <reg> <reg/address>')
+        else:
             if(mode_2 == Mode.DIRECT_REG
                or mode_2 == Mode.INDIRECT_REG):
-                if(mode_3 == Mode.DIRECT_REG
-                    or mode_3 == Mode.INDIRECT_REG):
-                    return op.value << 18 | mode_1.value << 16 | mode_2.value << 14 | mode_3 << 12| src1 << 8 | src2 << 4 | src3
-                else:
-                    return op.value << 30 | mode_1.value << 28 | mode_2.value << 26 | mode_3 << 24| src1 << 20 | src2 << 16 | src3
-            else :
-                if(mode_3 == Mode.DIRECT_REG
-                    or mode_3 == Mode.INDIRECT_REG):
-                    return op.value << 30 | mode_1.value << 28 | mode_2.value << 26 | mode_3 << 24| src1 << 20 | src2 << 4 | src3
-                else:
-                    return op.value << 42 | mode_1.value << 40 | mode_2.value << 38 | mode_3 << 36| src1 << 32 | src2 << 16 | src3
-        else :
-            if(mode_2 == Mode.DIRECT_REG
-               or mode_2 == Mode.INDIRECT_REG):
-                if(mode_3 == Mode.DIRECT_REG
-                    or mode_3 == Mode.INDIRECT_REG):
-                    return op.value << 30 | mode_1.value << 28 | mode_2.value << 26 | mode_3 << 24| src1 << 8 | src2 << 4 | src3
-                else:
-                    return op.value << 42 | mode_1.value << 40 | mode_2.value << 38 | mode_3 << 36| src1 << 20 | src2 << 16 | src3
-            else :
-                if(mode_3 == Mode.DIRECT_REG
-                    or mode_3 == Mode.INDIRECT_REG):
-                    return op.value << 42 | mode_1.value << 40 | mode_2.value << 38 | mode_3 << 36| src1 << 20 | src2 << 4 | src3
-                else:
-                    return op.value << 54 | mode_1.value << 52 | mode_2.value << 50 | mode_3 << 48| src1 << 32 | src2 << 16 | src3
+                return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12]
+            else:
+                return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16, src2]
+           
     def generate_int(self, value):
         return value & 0x7FFFFFFF
     def generate_bool(self, value):
@@ -216,15 +190,6 @@ class code_generate():
     def generate_string(self, value):
         ret = []
         ret.append(0x80000000 | len(value))
-        i = 0
-        while(i + 3 < len(value)):
-            ret.append(ord(value[i]) << 24 
-                       | ord(value[i + 1]) << 16 
-                       | ord(value[i + 2]) << 8 
-                       | ord(value[i + 3]))
-            i = i + 4
-        temp = 0xFFFFFFFF
-        while(i < len(value)) :
-            temp = temp & value[i] << (i % 4) * 8
-        ret.append(temp)
+        for i in range(len(value)):
+            ret.append(ord(value[i]))
         return ret

@@ -18,7 +18,15 @@ I : Mode(2bit)
     1.5 EI(11010) end interrupt
     instruction format: [opcode(5)]
 
-    
+# rax : 0x0
+# rbx : 0x3
+# rcx: 0x1
+# rdx: 0x2
+# rsp: 0x4
+# sbp: 0x5 : begin of stack( end of memory) 
+# rsi: 0x6
+# rdi: 0x7
+# r8 -> r15
     
 2. 1-addressing instruction
     2.1 JMP(00010) - jump to specific address
