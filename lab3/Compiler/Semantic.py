@@ -138,6 +138,7 @@ class Opcode(Enum):
     LSL = 19
     LSR = 20
     ASR = 21
+    INC = 27
 class Mode(Enum):
     DIRECT_REG = 0
     INDIRECT_REG = 1
@@ -182,14 +183,14 @@ class code_generate():
                 return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12]
             else:
                 return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16, src2]
-           
+        
     def generate_int(self, value):
         return value & 0x7FFFFFFF
     def generate_bool(self, value):
         return value & 0x7FFFFFFF
     def generate_string(self, value):
         ret = []
-        ret.append(0x80000000 | len(value))
-        for i in range(len(value)):
+        ret.append(0x80000000 | len(value) - 2)
+        for i in range(1, len(value) - 1):
             ret.append(ord(value[i]))
         return ret
