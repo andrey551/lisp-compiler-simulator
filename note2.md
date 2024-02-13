@@ -26,7 +26,9 @@ I : Mode(2bit)
 # sbp: 0x5 : begin of stack( end of memory) 
 # rsi: 0x6
 # rdi: 0x7
-# r8 -> r15
+# r8: heap pointer : 0x8
+# r9 -> r15
+# r10 : IO reg
     
 2. 1-addressing instruction
     2.1 JMP(00010) - jump to specific address
@@ -38,6 +40,7 @@ I : Mode(2bit)
     2.6 OUT(00111) - interrupt out
     2.7 PUSH(01000)
     2.8 POP (01001)
+    2.9 INC (11011)
     instruction format: [opcode(5)][I(2)][value] ( length change)
 
 
@@ -52,7 +55,7 @@ I : Mode(2bit)
         instruction format: [opcode(5)][I - 1(1)][reg-dest(4)][(4)][reg-source(4)/immediate(18)]
     3.5 NOT(11000)
         [opcode][I(2)][I(2)][value][value] (length change)
-4. 3-addressing instruction
+4. althmetic instruction
     4.1 ADD(01100)
     4.2 SUB(01101) 
     4.3 MUL(01110)

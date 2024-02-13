@@ -145,6 +145,8 @@ class Mode(Enum):
     ADDRESS = 2
     VALUE = 3
 class code_generate():
+    def __init__(self):
+        self.desc = []
     def generate_zero_address_instruction(self, op : Opcode):
         return op.value << 24
     def generate_one_address_instruction(self, op : Opcode, mode : Mode, src):
@@ -185,9 +187,9 @@ class code_generate():
                 return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16, src2]
         
     def generate_int(self, value):
-        return value & 0x7FFFFFFF
+        return int(value) & 0x7FFFFFFF
     def generate_bool(self, value):
-        return value & 0x7FFFFFFF
+        return int(value) & 0x7FFFFFFF
     def generate_string(self, value):
         ret = []
         ret.append(0x80000000 | len(value) - 2)

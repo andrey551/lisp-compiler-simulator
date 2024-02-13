@@ -97,6 +97,16 @@ class set(node):
     def build(self):
         pass
 
+class let(node):
+    def __init__(self, 
+               tokens, 
+               name = None, 
+               value = None):
+        node.__init__(self, tokens, name, value)
+        self.params = 2
+    def build(self):
+        pass
+
 class printf(node):
     def __init__(self, 
                tokens, 
@@ -253,7 +263,9 @@ def tokensToNodes(tokens):
         elif(keys[i] == 'KEYWORD'):
             if(values[i] == 'if'):
                 ret.append(if_clause(tokens[i], keys[i], values[i]))
-            elif(values[i] == 'setq'):
+            elif(values[i] == 'let'):
+                ret.append(let(tokens[i], keys[i], values[i]))
+            elif(values[i] == 'set'):
                 ret.append(set(tokens[i], keys[i], values[i]))
             elif(values[i] == 'format'):
                 ret.append(printf(tokens[i], keys[i], values[i]))
@@ -283,6 +295,7 @@ class executor():
         if(self.chain[iterator].value == '('):
             self.chain[iterator] = expression(self.chain[iterator], 'expression')
             while(self.chain[iterator + 1].value != ')'):
+                print(iterator)
                 self.execute(iterator + 1)
                 self.chain[iterator].children.append(self.chain[iterator + 1])
                 self.chain.pop(iterator + 1)

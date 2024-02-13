@@ -2,7 +2,7 @@ from Compiler.Parser import (
     call, defun, executor, if_clause, integer, logical_operant, mathematic_operant, printf, return_, 
     string, boolean, 
     node, literal, input,
-    identifier,
+    identifier, let,
     expression, while_)
 from Compiler.Semantic import (
     code_generate,
@@ -98,23 +98,24 @@ class visitor():
                              .generate_one_address_instruction(Opcode.POP, 
                                                                  Mode.DIRECT_REG, 0x0))
     def visitMathNode(self, nd: node):
-        if(len(nd.children) != 2):
-            raise AttributeError('Expected 2 params on set command!')
+        if(len(nd.children) != 1):
+            raise AttributeError('Expected 1 params on set command!')
         else:
             self.main.append(self.generator
                              .generate_one_address_instruction(Opcode.PUSH, 
                                                                  Mode.DIRECT_REG, 0x2))
             
-            if(isinstance(nd.children[0], expression)):
-                self.visitExpressionNode(nd.children[0])
-            elif(isinstance(nd.children[0], identifier)):
-                iden = self.get_lastest_identifier(nd.children[0].value)
+            if(isinstance(nd.children[0].children[0], expression)):
+                self.visitExpressionNode(nd.children[0].children[0])
+            elif(isinstance(nd.children[0].children[0], identifier)):
+                print(nd.children[0].children[0].value)
+                iden = self.get_lastest_identifier(nd.children[0].children[0].value)
                 self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.LOAD, 
                                                                      Mode.DIRECT_REG, 
                                                                      Mode.ADDRESS, 
                                                                      0x0, iden.value))
-            elif(isinstance(nd.children[0], literal)):
+            elif(isinstance(nd.children[0].children[0], literal)):
                 self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.LOAD, 
                                                                      Mode.DIRECT_REG, 
@@ -124,12 +125,12 @@ class visitor():
             else:
                 raise ValueError('dont know ')
             
-            if(isinstance(nd.children[1], expression)):
+            if(isinstance(nd.children[0].children[1], expression)):
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.PUSH, 
                                                                      Mode.DIRECT_REG, 
                                                                      0x0))
-                self.visitExpressionNode(nd.children[1])
+                self.visitExpressionNode(nd.children[0].children[1])
                 self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.MOV, 
                                                                      Mode.DIRECT_REG, 
@@ -139,17 +140,17 @@ class visitor():
                                  .generate_one_address_instruction(Opcode.POP, 
                                                                      Mode.DIRECT_REG, 
                                                                      0x0))
-            elif(isinstance( nd.children[0], identifier)):
+            elif(isinstance( nd.children[0].children[1], identifier)):
                 iden = self.get_lastest_identifier(nd.children[0].value)
                 self.main.append(self.generator.generate_two_address(Opcode.LOAD, 
                                                                      Mode.DIRECT_REG, 
                                                                      Mode.ADDRESS, 
                                                                      0x2, iden.value))
-            elif(isinstance( nd.children[0], literal)):
+            elif(isinstance( nd.children[0].children[1], literal)):
                 self.main.append(self.generator.generate_two_address(Opcode.LOAD, 
                                                                      Mode.DIRECT_REG, 
                                                                      Mode.ADDRESS, 0x2, 
-                                                                     nd.children[1].address))
+                                                                     nd.children[0].children[1].address))
             else:
                 raise ValueError('dont know ')
 
@@ -188,7 +189,6 @@ class visitor():
             self.main.append(self.generator.generate_one_address(Opcode.POP, 
                                                                  Mode.DIRECT_REG, 0x2))
             
-        
     def visitLogicalNode(self, nd : node):
         if(len(nd.children) != 2):
             raise AttributeError('Expected 2 params on set command!')
@@ -689,6 +689,8 @@ class visitor():
                 self.visitIfNode(i)
             elif(isinstance(i, set)):
                 self.visitIfNode(i)
+            elif(isinstance(i, let)):
+                self.visitIfNode(i)
             elif(isinstance( i, printf)):
                 self.visitPrintNode(i)
             elif(isinstance( i, defun)):
@@ -708,10 +710,15 @@ class visitor():
 
 def translate(root :node):
     visit = visitor()
+    visit.main.append(0x0)
     visit.setLiteralAddress(root)
+    visit.main[0] = len(visit.main)
     visit.visitExpressionNode(root)
+    visit.main.append(visit.generator
+                      .generate_zero_address_instruction(Opcode.HALT))
     for i in visit.main:
         print(hex(i))
+
 
 
 
