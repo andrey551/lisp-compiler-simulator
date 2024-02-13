@@ -92,21 +92,21 @@ def is_Boolean(word):
         return True
     return False
 def to_Token(word):
-    if(SPECIAL_CHARACTER.is_Special_Character(word)):
+    if SPECIAL_CHARACTER.is_Special_Character(word):
         return {SPECIAL_CHARACTER.get_Name(word) : word}
-    if(MATH_OPERATOR.is_Math_Operator(word)):
+    if MATH_OPERATOR.is_Math_Operator(word):
         return {'MATHEMATIC_OPERATION' : word }
-    if(LOGICAL_OPERATOR.is_Logical_Operator(word)):
+    if LOGICAL_OPERATOR.is_Logical_Operator(word):
         return {'LOGICAL_OPERATION' : word}
-    if(KEYWORD.is_Keyword(word)):
+    if KEYWORD.is_Keyword(word):
         return {'KEYWORD' : word}
-    if(is_Integer(word)):
+    if is_Integer(word):
         return {'INTEGER' : word}
-    if(is_Float(word)):
+    if is_Float(word):
         return {'FLOAT' : word }
-    if(is_Boolean(word)):
+    if is_Boolean(word):
         return {'BOOLEAN' : word}
-    if(is_String(word)):
+    if is_String(word):
         return {'STRING' : word}
     return {'IDENTIFIER' : word}
 
@@ -157,6 +157,8 @@ class code_generate():
         elif(mode == Mode.ADDRESS 
              or mode == Mode.VALUE):
             return op.value << 24 | mode.value << 20 | src << 4
+        else:
+            pass
     def generate_two_address_instruction(self, 
                              op: Opcode, 
                              mode_1 : Mode, 
@@ -165,12 +167,11 @@ class code_generate():
                              src2):
         if(mode_1.value > 1):
             raise ValueError('opcode <reg> <reg/address>')
+        if(mode_2 == Mode.DIRECT_REG
+            or mode_2 == Mode.INDIRECT_REG):
+            return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12
         else :
-            if(mode_2 == Mode.DIRECT_REG
-               or mode_2 == Mode.INDIRECT_REG):
-                return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12
-            else :
-                return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
+            return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
 
     def generate_althmetic_instruction(self,
                                op: Opcode,
@@ -180,12 +181,11 @@ class code_generate():
                                src2):
         if(mode_1.value > 1):
            raise ValueError('opcode <reg> <reg/address>')
+        if(mode_2 == Mode.DIRECT_REG
+            or mode_2 == Mode.INDIRECT_REG):
+            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12]
         else:
-            if(mode_2 == Mode.DIRECT_REG
-               or mode_2 == Mode.INDIRECT_REG):
-                return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12]
-            else:
-                return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16, src2]
+            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16, src2]
         
     def generate_int(self, value):
         return int(value) & 0x7FFFFFFF
