@@ -71,6 +71,7 @@ class KEYWORD(Enum):
     TO = 'to'
     WHILE = 'while'
     RETURN = 'return'
+    CALL = 'call'
     @classmethod
     def is_Keyword(self,word):
         try:

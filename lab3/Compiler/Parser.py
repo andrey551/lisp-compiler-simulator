@@ -227,7 +227,7 @@ class while_(node):
                  name = None,
                  value = None):
         node.__init__(self, tokens, name, value)
-        self.param = 2
+        self.params = 2
     def build(self):
         pass
 class return_(node):
@@ -236,9 +236,19 @@ class return_(node):
                  name = None,
                  value = None):
         node.__init__(self, tokens, name, value)
-        self.param = 1
+        self.params = 1
     def build(self):
         pass
+class call(node):
+    def __init__(self, 
+                 tokens,
+                 name = None,
+                 value = None):
+        node.__init__(self, tokens, name, value)
+        self.params = 2
+    def build(self):
+        pass
+
 def tokensToNodes(tokens):
     ret = []
     keys = [key for dictionary in tokens for key in dictionary.keys()]
@@ -281,6 +291,12 @@ def tokensToNodes(tokens):
                 ret.append(to(tokens[i], keys[i], values[i]))
             elif(values[i] == 'input'):
                 ret.append(input(tokens[i], keys[i], values[i]))
+            elif(values[i] == 'while'):
+                ret.append(while_(tokens[i], keys[i], values[i]))
+            elif(values[i] == 'return'):
+                ret.append(return_(tokens[i], keys[i], values[i]))
+            elif(values[i] == 'call'):
+                ret.append(call(tokens[i], keys[i], values[i]))
             else:
                 pass
         else:
@@ -295,7 +311,6 @@ class executor():
         if(self.chain[iterator].value == '('):
             self.chain[iterator] = expression(self.chain[iterator], 'expression')
             while(self.chain[iterator + 1].value != ')'):
-                print(iterator)
                 self.execute(iterator + 1)
                 self.chain[iterator].children.append(self.chain[iterator + 1])
                 self.chain.pop(iterator + 1)
