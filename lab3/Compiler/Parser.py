@@ -13,7 +13,7 @@ class node(ABC):
         print(level * "    ", self.name, " : ", self.value)
         for i in self.children:
             i.print(level + 1)
-    def set_address(self, addr: hex):
+    def set_address(self, addr: int):
         self.address = addr
     @abstractmethod
     def build(self):
@@ -237,15 +237,6 @@ class return_(node):
                  value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
-class call(node):
-    def __init__(self, 
-                 tokens,
-                 name = None,
-                 value = None):
-        node.__init__(self, tokens, name, value)
-        self.params = 2
     def build(self):
         pass
 

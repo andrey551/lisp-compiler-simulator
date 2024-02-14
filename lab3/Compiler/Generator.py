@@ -1,6 +1,8 @@
 from Compiler.Parser import (
-    call, defun, if_clause, integer, 
-    logical_operant, mathematic_operant, 
+    call, defun, 
+    if_clause, integer, 
+    logical_operant, 
+    mathematic_operant, 
     printf, return_, 
     string, boolean, 
     node, literal, input,
@@ -15,7 +17,9 @@ from Compiler.Semantic import (
 import struct
 
 class identifier_raw():
-    def __init__(self, name, type : str, value): # at 0: stack , 1: data
+    def __init__(self, name, type : str, value): 
+        # type address : direct address, 
+        # register : data saved on registers ( for function ) 
         self.name = name
         self.type = type
         self.value = value
@@ -27,11 +31,13 @@ class visitor():
         self.stack_counter = 65535 
         self.generator = code_generate()
         self.heap_address = 0
+
     def get_lastest_identifier(self, name :str):
         for i in reversed(self.identifier):
             if(i.name == name):
                 return i
         return None
+    
     def setLiteralAddress(self, root: node):
         
         if(isinstance(root, literal)):
@@ -52,7 +58,6 @@ class visitor():
                 self.visitDefunNode(i)
 
     def visitLetNode(self, nd : node):
-        self.state.isInLet = True
         if(len(nd.children) != 2):
             raise ValueError('Expected number of parameters : 2')
         elif(isinstance(nd.children[0], identifier) == False):
@@ -102,7 +107,8 @@ class visitor():
                                                                             Mode.DIRECT_REG,
                                                                             Mode.ADDRESS,
                                                                             iden.value,
-                                                                            nd.children[1].address))
+                                                                            nd.children[1]
+                                                                            .address))
                 elif(isinstance(nd.children[1], identifier)):
                     iden1 = self.get_lastest_identifier(nd.children[1].value)
                     if(iden1 != None):
@@ -128,6 +134,7 @@ class visitor():
             self.main.append(self.generator
                              .generate_one_address_instruction(Opcode.POP, 
                                                                  Mode.DIRECT_REG, 0x0))
+            
     def visitMathNode(self, nd: node):
         if(len(nd.children) != 1):
             raise AttributeError('Expected 1 params on set command!')
@@ -223,7 +230,7 @@ class visitor():
                                                                         Mode.DIRECT_REG, 
                                                                         0x0, 0x2)
             elif(nd.value == 'mod'):
-                ret = self.generato.generate_althmetic_instruction(Opcode.MOD,  
+                ret = self.generator.generate_althmetic_instruction(Opcode.MOD,  
                                                                        Mode.DIRECT_REG, 
                                                                        Mode.DIRECT_REG, 
                                                                        0x0, 0x2)
@@ -448,6 +455,7 @@ class visitor():
                                                                     Opcode.BEQ,
                                                                     Mode.VALUE,
                                                                     after_exp)
+                
     def visitWhileNode(self, nd : node):
         if(len(nd.children) != 2):
             raise AttributeError('while <condition> <expression>')
@@ -510,6 +518,7 @@ class visitor():
                              .generate_one_address_instruction(Opcode.JMP,
                                                                Mode.INDIRECT_REG,
                                                                0x3))
+            
     def visitPrintNode(self, nd : node):
         if(len(nd.children) != 2):
             raise AttributeError('print <identifier>/ literal / <expression>')
@@ -571,7 +580,7 @@ class visitor():
                                                                     Mode.VALUE,
                                                                     0x1,
                                                                     0x0))
-                self.append(self.generator
+                self.main.append(self.generator
                             .generate_two_address_instruction(Opcode.CMP,
                                                                 Mode.DIRECT_REG,
                                                                 Mode.DIRECT_REG,
@@ -623,7 +632,6 @@ class visitor():
             self.main.append(self.generator
                              .generate_zero_address_instruction(Opcode.EI))
             
-        
     def visitInputNode(self, nd : node):
         if(len(nd.children) != 1):
             raise AttributeError("input <identifier>")
@@ -672,9 +680,7 @@ class visitor():
         self.main.append(self.generator
                          .generate_zero_address_instruction(Opcode.EI))
         # EI dieu chinh 0x9 = 0x8
-        
-        
-        
+
     def visitCallNode(self, nd : node):
         if(len(nd.children) != 2):
             raise SyntaxError('call function (expression)')
@@ -690,7 +696,9 @@ class visitor():
                                                                         Mode.DIRECT_REG,
                                                                         Mode.ADDRESS,
                                                                         0x7,
-                                                                        nd.children[1].children[0].address))
+                                                                        nd.children[1]
+                                                                        .children[0]
+                                                                        .address))
                  elif(isinstance(nd.children[1].children[0], identifier)):
                   iden = self.get_lastest_identifier(nd.children[1].children[0].value)
                   if(iden != None):
@@ -737,7 +745,9 @@ class visitor():
                                                                         Mode.DIRECT_REG,
                                                                         Mode.ADDRESS,
                                                                         0x6,
-                                                                        nd.children[1].children[1].address))
+                                                                        nd.children[1]
+                                                                        .children[1]
+                                                                        .address))
                  elif(isinstance(nd.children[1].children[0], identifier)):
                   iden = self.get_lastest_identifier(nd.children[1].children[0].value)
                   if(iden != None):
@@ -794,6 +804,7 @@ class visitor():
                                  .generate_one_address_instruction(Opcode.POP,
                                                                     Mode.DIRECT_REG,
                                                                     0x7))
+                
     def visitDefunNode(self, nd : node):
         if(isinstance(nd, defun) == False):
             return
@@ -869,6 +880,12 @@ def translate(root :node):
             bin_data = struct.pack('q', i)
             file.write(bin_data)
     file.close()
+
+def createStackTrace(data):
+    pass
+
+def decodeInstruction(instruction):
+    pass
 
 
 

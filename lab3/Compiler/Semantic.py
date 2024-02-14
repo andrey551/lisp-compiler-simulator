@@ -3,14 +3,14 @@ import re
 class SPECIAL_CHARACTER(Enum):
     LEFT_PARENTHESIS = '('
     RIGHT_PARENTHESIS = ')'
-    QUOTE = '\''         # Denotes literal data or prevents evaluation of an expression
-    BACKQUOTE = '`'      # Used for quasi-quotation, a mechanism for constructing templates
-    COMMA = ','          # Used in conjunction with backquote for unquoting within quasi-quoted expressions
-    PERIOD = '.'         # Separates the elements of a cons cell in a dotted pair notation
-    COLON = ':'          # Often used in keywords and package prefixes
-    SHARP = '#'          # Introduces various reader macros
-    AMPERSAND = '&'      # Used in special parameters in lambda lists for specifying various kinds of argument passing
-    PERCENTAGE = '%'     # Used in some Lisps for special variables
+    QUOTE = '\''       
+    BACKQUOTE = '`'      
+    COMMA = ','      
+    PERIOD = '.'       
+    COLON = ':'         
+    SHARP = '#'      
+    AMPERSAND = '&'    
+    PERCENTAGE = '%'   
 
     @classmethod
     def is_Special_Character(self, word):
@@ -82,7 +82,8 @@ class KEYWORD(Enum):
 def is_Integer(word):
     return bool(re.compile(r'^[+-]?\d+$').match(word))
 def is_Float(word):
-    return bool(re.compile(r'^[+-]?(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?$').match(word))
+    return bool(re.compile(r'^[+-]?(?:\d+\.\d*|\.\d+)(?:[eE][+-]?\d+)?$')
+                .match(word))
 def is_String(word):
     if(word[0] == '"' and word[-1] == '"'):
         return True
@@ -151,10 +152,10 @@ class code_generate():
     def generate_zero_address_instruction(self, op : Opcode):
         return op.value << 24
     def generate_one_address_instruction(self, op : Opcode, mode : Mode, src):
-        if(mode == Mode.DIRECT_REG 
+        if(mode == Mode.DIRECT_REG
            or mode == Mode.INDIRECT_REG):
             return op.value << 24 | mode.value << 20 | src << 16
-        elif(mode == Mode.ADDRESS 
+        elif(mode == Mode.ADDRESS
              or mode == Mode.VALUE):
             return op.value << 24 | mode.value << 20 | src << 4
         else:
