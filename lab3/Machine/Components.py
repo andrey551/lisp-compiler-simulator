@@ -16,7 +16,7 @@ class Register():
     def get_bit_at(self, index : int):
         return self.value >> index & 0x1
     def get_byte_at(self, index : int):
-        return self.value >> index & 0xF
+        return (self.value >> (index * 4 - 1)) & 0xF
 
 
 class Flag():
@@ -49,7 +49,9 @@ class Memory():
         with open (fileName, mode = 'rb') as file:
             fileContent = file.read()
             for i in range (int(len(fileContent)/ 8)):
-                self.data.append(struct.unpack('q' * int(len(fileContent)/ 8), i))
+                self.data.append(
+                    struct.unpack('q' * int(len(fileContent)/ 8), 
+                                  fileContent))
         file.close()
         for i in range(len(self.data), self.length):
             self.data.append(None)
