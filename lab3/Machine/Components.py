@@ -30,12 +30,9 @@ class Flag():
 class Mux():
     def __init__(self):
         self.conn = []
-        self.latch = 0x0
     def execute(self, to : Register):
         to.set(self.conn[self.latch])
-    def setLatch(self, latch : int):
-        self.latch = latch
-    def setConn(self, conn : [Register]):
+    def setConn(self, conn ):
         self.conn = conn
 class Memory():
     def __init__(self):
@@ -117,9 +114,38 @@ class GeneralRegister(Enum):
     r14 = 0xE
     r15 = 0xF
 
+    def getReg(value):
+        for i in GeneralRegister:
+            if (i.value == value):
+                return i
+        
+        raise ValueError("enum type not found!")
+@dataclass
+class pcSelSignal(Enum):
+    branch = 0x0
+    plusOne = 0x1a
+
+@dataclass
+class drSelSignal(Enum):
+    acSignal = 0x0
+    regfileSignal = 0x1
+    valueSignal = 0x2
+    inSignal = 0x3
+
+@dataclass
+class leftSignal(Enum):
+    arSgnal = 0x0
+    acSignal = 0x1
+    zero = 0x2
+
+@dataclass
+class rightSignal(Enum):
+    drSignal = 0x0
+    zero = 0x1
+    
 class RegisterFile():
     def __init__(self):
-        self.regs : [Register] = []
+        self.regs  = []
         for i in range(16):
             self.regs.append(Register())
     def write(self, 
@@ -128,21 +154,27 @@ class RegisterFile():
         self.regs[reg.value] = value
     def read(self,
              reg : GeneralRegister):
-        return self.regs[reg.value]
+        return self.regs[reg.value].value
 
 @dataclass
 class IOState(Enum):
     Lock = 0
     Unlock = 1
+
 class InterruptHandler():
     def __init__(self):
         self.state : IOState = IOState.Unlock
+        self.value = 0x0
     def lock(self):
         self.state = IOState.Lock
     def unlock(self):
         self.state = IOState.Unlock
     def getState(self):
         return self.state
+    def getNextValue(self, buffer):
+        self.value = buffer.extractValue()
+    def writeToBuffer(self, buffer):
+        buffer.insertData(self.value)
 
 class InPort():
     def receiveData(self, src):
@@ -170,3 +202,11 @@ class IOBuffer():
         if(handler.state == IOState.Lock):
             return
         port.receiveData("")
+
+    def insertData(self, data):
+        self.memory.append(data)
+    def extractValue(self):
+        ret = self.memory[iter]
+        self.memory.pop(self.iter)
+        self.iter = self.iter - 1
+        return ret

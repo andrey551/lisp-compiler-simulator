@@ -3,5 +3,6 @@
         "./lab3/Common",
         "./lab3/Common",
         "./lab3/Compiler"
-    ]
+    ],
+    "svn.ignoreMissingSvnWarning": true
 }

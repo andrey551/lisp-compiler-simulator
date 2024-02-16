@@ -514,10 +514,7 @@ class visitor():
                 self.visitExpressionNode(nd.children[0])
             else:
                 raise SyntaxError('Expression is not bounded!')
-            self.main.append(self.generator
-                             .generate_one_address_instruction(Opcode.JMP,
-                                                               Mode.INDIRECT_REG,
-                                                               0x3))
+            
             
     def visitPrintNode(self, nd : node):
         if(len(nd.children) != 2):
@@ -836,6 +833,9 @@ class visitor():
         else:
             pass
         self.visitExpressionNode(nd.children[2])
+        
+        self.main.append(self.generator
+                             .generate_zero_address_instruction(Opcode.RET))
         
     def visitExpressionNode(self, nd : node):
         for i in nd.children:
