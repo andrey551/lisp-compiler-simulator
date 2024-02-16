@@ -113,7 +113,7 @@ class printf(node):
                name = None, 
                value = None):
         node.__init__(self, tokens, name, value)
-        self.params = 2
+        self.params = 1
     def build(self):
         pass
 
@@ -296,7 +296,7 @@ def tokensToNodes(tokens):
 
 class executor():
     def __init__(self, 
-                 node_chain : [node] = None):
+                 node_chain = None):
         self.chain = node_chain
     def execute(self, iterator = 0):
         if(self.chain[iterator].value == '('):

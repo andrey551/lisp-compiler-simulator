@@ -141,6 +141,11 @@ class Opcode(Enum):
     LSR = 20
     ASR = 21
     INC = 27
+
+    def getname(value):
+        for i in Opcode:
+            if(i.value == value):
+                return i.name
 class Mode(Enum):
     DIRECT_REG = 0
     INDIRECT_REG = 1
@@ -152,14 +157,7 @@ class code_generate():
     def generate_zero_address_instruction(self, op : Opcode):
         return op.value << 24
     def generate_one_address_instruction(self, op : Opcode, mode : Mode, src):
-        if(mode == Mode.DIRECT_REG
-           or mode == Mode.INDIRECT_REG):
-            return op.value << 24 | mode.value << 20 | src << 16
-        elif(mode == Mode.ADDRESS
-             or mode == Mode.VALUE):
-            return op.value << 24 | mode.value << 20 | src << 4
-        else:
-            pass
+        return op.value << 24 | mode.value << 20 | src
     def generate_two_address_instruction(self, 
                              op: Opcode, 
                              mode_1 : Mode, 
@@ -168,11 +166,7 @@ class code_generate():
                              src2):
         if(mode_1.value > 1):
             raise ValueError('opcode <reg> <reg/address>')
-        if(mode_2 == Mode.DIRECT_REG
-            or mode_2 == Mode.INDIRECT_REG):
-            return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12
-        else :
-            return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
+        return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
 
     def generate_althmetic_instruction(self,
                                op: Opcode,
@@ -182,11 +176,10 @@ class code_generate():
                                src2):
         if(mode_1.value > 1):
            raise ValueError('opcode <reg> <reg/address>')
-        if(mode_2 == Mode.DIRECT_REG
-            or mode_2 == Mode.INDIRECT_REG):
-            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2 << 12]
+        if(mode_2 in [Mode.DIRECT_REG, Mode.INDIRECT_REG, Mode.ADDRESS]):
+            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2]
         else:
-            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16, src2]
+            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 , src2]
         
     def generate_int(self, value):
         return int(value) & 0x7FFFFFFF

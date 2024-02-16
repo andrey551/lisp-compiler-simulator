@@ -58,10 +58,11 @@ class Datapath():
         self.select.althmetic = AluOp.ADD
 
     def setup(self):
-        self.pc.set(0x0)
-        self.drMux.setConn([0x0, 0x0, 0x0, 0x0])
-        self.leftMux.setConn([0x0, 0x0, 0x0])
-        self.rightMux.setConn([0x0, 0x0])
+        self.registers.pc.set(0x0)
+        self.muxs.pcMux.setCOnn([0x0, 0x0])
+        self.muxs.drMux.setConn([0x0, 0x0, 0x0, 0x0])
+        self.muxs.leftMux.setConn([0x0, 0x0, 0x0])
+        self.muxs.rightMux.setConn([0x0, 0x0])
         
     def latchIR(self):
         self.registers.ir.set(self.memory.read(self.registers.pc.get()))
@@ -116,7 +117,8 @@ class Datapath():
                                                self.muxs.leftMux.conn[self.select.leftSel],
                                                self.muxs.rightMux.conn[self.select.rightSel]))
         self.registerFile.regs[0].set(self.registers.ac.get())
-    
-    
+        if(self.state.isWriteReg):
+            self.registerFile.regs[self.registers.ar.get()].set(self.registers.ac.get())
+
 
     

@@ -11,7 +11,7 @@ there are 26 instruction, so it should be stored in 5 bits
 I : Mode(2bit)
 
 1. 0-addressing instruction
-    1.1 RET(00001) transfers the contents of ra(address that program counter lies on) to the PC(program counter). 
+    1.1 RET(00001) transfers the contents of rbx(address that program counter lies on) to the PC(program counter). 
     1.2 NOP(00000) do nothing
     1.3 HALT(11111) end program 
     1.4 DI(11001) start interrupt

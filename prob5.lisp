@@ -1,7 +1,7 @@
 ( defun gcd (g h) (
     ( if ( = g 0 ) 
         ( return h )
-        ( return ( call gcd ( h mod ( g h ))))
+        ( return ( call gcd ( h ( mod ( g h )))))
     )
 )
 
@@ -18,4 +18,4 @@
         set i ( + ( i 1) )  
     )
 )                   
-(format t res))
+(format res))

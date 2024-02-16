@@ -63,6 +63,13 @@ class AluOp(Enum):
     OR = 6
     NOT = 7
     CMP = 8
+    def getOp(value):
+        for i in AluOp:
+            if (i.value == value):
+                return i
+        
+        raise ValueError("enum type not found!")
+
 
 ALU_OP : dict[AluOp, Callable[[int, int], int]] = {
     AluOp.ADD: lambda  left, right: left + right,
@@ -210,3 +217,19 @@ class IOBuffer():
         self.memory.pop(self.iter)
         self.iter = self.iter - 1
         return ret
+
+##########################
+    
+class InstructionDecoder():
+    def __init__(self):
+        pass
+class GenerateSignal():
+    def __init__(self):
+        pass
+class NextGenerateState():
+    def __int__(self):
+        pass
+
+class TimingUnit():
+    def __init__(self):
+        pass
