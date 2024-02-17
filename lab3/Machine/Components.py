@@ -2,6 +2,7 @@ import struct
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, cast
+from Semantic import Opcode, Mode
 
 
 MAX_INT = 2^30
@@ -219,12 +220,50 @@ class IOBuffer():
         return ret
 
 ##########################
+class InstructionType(Enum):
+    ZeroAttribute = 0x0
+    OneAttribute = 0x1
+    TwoAttribute = 0x2
+    AlthmeticInstruction = 0x3
     
 class InstructionDecoder():
     def __init__(self):
-        pass
+        self.opcode : Opcode
+        self.type : InstructionType
+        self.mode_1 : Mode
+        self.mode_2 : Mode
+    def decode(self, ir: Register):
+        value = ir.get()
+        self.opcode = Opcode.getname(value >> 24 & 0xFF)
+        if self.opcode in [ 0, 1, 25, 26, 31]:
+            self.type = InstructionType.ZeroAttribute
+        elif self.opcode in [2, 3, 4, 5, 6, 7, 8, 9, 27]:
+            self.type = InstructionType.OneAttribute
+        elif self.opcode in [10, 11, 19, 20, 21, 22, 23, 24]:
+            self.type = InstructionType.TwoAttribute
+        else:
+            self.type = InstructionType.AlthmeticInstruction
+        self.mode_1 = Mode.getMode(value >> 22 & 0x3)
+        self.mode_2 = Mode.getMode(value >> 20 & 0x3)
+
 class GenerateSignal():
     def __init__(self):
+        self.selReg : int
+        self.isReg : bool
+        self.isAddr : bool
+        self.isVal : bool
+        self.isBranch : bool
+        self.isWriteReg : bool
+        self.input : bool
+        self.output : bool
+
+        self.PCsel : pcSelSignal
+        self.DRsel : drSelSignal
+        self.leftsel : leftSignal
+        self.rightsel : rightSignal
+        self.althmetic : AluOp
+
+    def generate(self, decoder : InstructionDecoder):
         pass
 class NextGenerateState():
     def __int__(self):
@@ -232,4 +271,8 @@ class NextGenerateState():
 
 class TimingUnit():
     def __init__(self):
-        pass
+        self.tick = 0
+    def inc(self):
+        self.tick = self.tick + 1
+    def getTick(self):
+        return self.tick

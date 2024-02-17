@@ -403,7 +403,7 @@ class visitor():
             
     def visitIfNode(self, nd: node):
         if(len(nd.children) < 2 or len(nd.children) > 3) :
-            raise AttributeError('if clause exp-1 (exp-2)')
+            raise AttributeError('if <clause> <exp-1> (<exp-2>)')
         else:
             first_inst_jmp = 0
             second_exp_addr = 0
@@ -421,10 +421,10 @@ class visitor():
                                                                     Mode.VALUE,
                                                                     after_exp))
                 self.visitExpressionNode(nd.children[1])
-                after_exp = len(self.main)
+                after_exp = len(self.main) + 1
                 self.main[first_inst_jmp] = self.generator.generate_one_address_instruction(Opcode.BEQ,
                                                                                             Mode.VALUE,
-                                                                                            after_exp + 1)
+                                                                                            after_exp)
 # hard to explain, but if condition : if (condition) (expression) [after if]
 # then if condition is false, jump to [after if], but since we didn't visit expression yet, 
 # we don't know what is exactly address that we will jump to
@@ -432,13 +432,13 @@ class visitor():
 # same with if (condidtion) (expression) [1] (expression)[2]
 #  if condition false : jump to [1], else after first expression, jump to [2])
             if(len(nd.children) == 3):
-                first_inst_jmp = len(self.main)
+                first_inst_jmp = len(self.main) # jump if condition is false
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BEQ,
                                                                     Mode.VALUE,
-                                                                    second_exp_addr))
+                                                                    first_inst_jmp))
                 self.visitExpressionNode(nd.children[1])
-                second_exp_addr = len(self.main)
+                second_exp_addr = len(self.main) #jump to ret
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.JMP,
                                                                      Mode.VALUE, 
@@ -448,11 +448,11 @@ class visitor():
                 self.main[first_inst_jmp] = self.generator.generate_one_address_instruction(
                                                                     Opcode.BEQ,
                                                                     Mode.VALUE,
-                                                                    second_exp_addr)
+                                                                    second_exp_addr + 1)
                 self.main[second_exp_addr] = self.generator.generate_one_address_instruction(
-                                                                    Opcode.BEQ,
+                                                                    Opcode.JMP,
                                                                     Mode.VALUE,
-                                                                    after_exp + 1)
+                                                                    after_exp)
                 
     def visitWhileNode(self, nd : node):
         if(len(nd.children) != 2):
@@ -819,23 +819,23 @@ class visitor():
                                                                 Mode.DIRECT_REG,
                                                                 Mode.VALUE,
                                                                 0x3,
-                                                                len(self.main) + 1))
+                                                                len(self.main) + 2))
              iden = self.get_lastest_identifier(nd.children[0].value)
              if(iden != None):
                 self.main.append(self.generator
                                 .generate_one_address_instruction(Opcode.JMP,
                                                                 Mode.VALUE,
                                                                 iden.value))
-             if(len(nd.children[1].children) == 2):
-                self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.POP,
-                                                                    Mode.DIRECT_REG,
-                                                                    0x6))
-             if(len(nd.children[1].children) >= 1):
-                self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.POP,
-                                                                    Mode.DIRECT_REG,
-                                                                    0x7))
+            #  if(len(nd.children[1].children) == 2):
+            #     self.main.append(self.generator
+            #                      .generate_one_address_instruction(Opcode.POP,
+            #                                                         Mode.DIRECT_REG,
+            #                                                         0x6))
+            #  if(len(nd.children[1].children) >= 1):
+            #     self.main.append(self.generator
+            #                      .generate_one_address_instruction(Opcode.POP,
+            #                                                         Mode.DIRECT_REG,
+            #                                                         0x7))
                 
     def visitDefunNode(self, nd : node):
         if(isinstance(nd, defun) == False):

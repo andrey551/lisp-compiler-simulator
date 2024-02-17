@@ -52,9 +52,13 @@ I : Mode(2bit)
         instruction format: [opcode(5)][I -1(1)][(4)][reg-source-1(4)][reg-source-2/immediate(18)]
     
     3.4 MOV(10111) - transfer values from one register to another, or can load a register with a constant
+    mov from to
         instruction format: [opcode(5)][I - 1(1)][reg-dest(4)][(4)][reg-source(4)/immediate(18)]
     3.5 NOT(11000)
         [opcode][I(2)][I(2)][value][value] (length change)
+    3.6 LSL(10011) - shifts the value in the first source register to the left
+    3.7 LSR(10100) - shifts the value in the first source register to the right.
+    3.8 ASR(10101) - performs an arithmetic right shift
 4. althmetic instruction
     4.1 ADD(01100)
     4.2 SUB(01101) 
@@ -63,8 +67,5 @@ I : Mode(2bit)
     4.5 MOD(10000)
     4.6 AND(10001)
     4.7 OR(10010)
-    4.8 LSL(10011) - shifts the value in the first source register to the left
-    4.9 LSR(10100) - shifts the value in the first source register to the right.
-    4.10 ASR(10101) - performs an arithmetic right shift
     instruction format:
         [opcode(5)][I(2)][I(2)][I(2)][value][value][value] (length change)

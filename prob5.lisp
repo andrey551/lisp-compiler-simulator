@@ -1,7 +1,9 @@
+( 
 ( defun gcd (g h) (
-    ( if ( = g 0 ) 
-        ( return h )
-        ( return ( call gcd ( h ( mod ( g h )))))
+        ( if ( = g 0 ) 
+            ( return h )
+            ( return ( call gcd ( h ( mod ( g h )))))
+        )
     )
 )
 
@@ -14,7 +16,7 @@
 (
     while ( < i 21 )
     (
-        set res (call smallest_divisor ( res i))
+        set res (call least_common_multiple ( res i))
         set i ( + ( i 1) )  
     )
 )                   

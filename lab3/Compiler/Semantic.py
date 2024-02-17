@@ -151,6 +151,11 @@ class Mode(Enum):
     INDIRECT_REG = 1
     ADDRESS = 2
     VALUE = 3
+
+    def getMode(value):
+        for i in Mode:
+            if(value == i.value):
+                return i
 class code_generate():
     def __init__(self):
         self.desc = []
