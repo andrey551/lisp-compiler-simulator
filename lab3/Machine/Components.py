@@ -37,6 +37,7 @@ class Mux():
         self.conn = conn
     def setConnAt(self, index, value):
         self.conn[index] = value
+
 class Memory():
     def __init__(self):
         self.data = []
@@ -87,13 +88,31 @@ ALU_OP : dict[AluOp, Callable[[int, int], int]] = {
     AluOp.NOT: lambda left, right: left | ~right
 }
 
+class datapathAction(Enum):
+    activeSelDest = 0x0
+    activeDestIndirectReg = 0x1
+    activeArSel = 0x2
+    activeSelSrc = 0x3
+    activeIndirectAddr = 0x4
+    activeAlthmetic = 0x5
+    activeIn = 0x6
+    activeDrSel = 0x7
+    activeLeftSel = 0x8
+    activeRightSel = 0x9
+    activeCmp = 0xA
+    activeAC = 0xB
+    activeWriteReg = 0xC
+    activeWriteMem = 0xD
+    activePcSel = 0xE
 class ALU():
     def __init__(self):
+        self.left : int = 0x0
+        self.right : int = 0x0
         self.p : bool = False
         self.z : bool = False
-    def execute(self, op: AluOp, left : int, right : int = 0) -> int:
+    def execute(self, op: AluOp) -> int:
         operant = ALU_OP[op]
-        ret = operant(left, right)
+        ret = operant(self.left, self.right)
         ret = self.handle_overflow(ret)
         self.set_flags(ret)
         return ret
@@ -172,12 +191,16 @@ class RegisterFile():
         self.addr : int = 0x0
         self.value : int = 0x0
     def write(self, 
-              reg : GeneralRegister, 
+              reg : int, 
               value: int):
-        self.regs[reg.value] = value
+        if(reg > 0xF) :
+            return
+        self.regs[reg] = value
     def read(self,
-             reg : GeneralRegister):
-        return self.regs[reg.value].value
+             reg : int):
+        if(reg > 0xF) :
+            return
+        return self.regs[reg].value
     def sync(self):
         self.value = self.regs[self.addr].get()
 
@@ -211,7 +234,7 @@ class OutPort():
         file.close()
 
 class IOBuffer():
-    def __init__(self, inPort, outPort):
+    def __init__(self, inPort = None, outPort = None):
         self.size = 4096
         self.iter = 0
         self.memory = []
@@ -261,6 +284,13 @@ class InterruptHandler():
         self.value = buffer.extractValue()
     def writeToBuffer(self, buffer):
         buffer.insertData(self.value)
+    def getValue(self):
+        if(self.state == IOState.Unlock):
+            temp = self.value
+            self.getNextValue()
+            return temp
+        
+        return -1
 
 ##########################
 class InstructionType(Enum):
@@ -289,28 +319,34 @@ class InstructionDecoder():
         self.mode_1 = Mode.getMode(value >> 22 & 0x3)
         self.mode_2 = Mode.getMode(value >> 20 & 0x3)
 
+class SystemSignal(Enum):
+    END_PROGRAM = 0x0
+    DI = 0x1
+    EI = 0x2
 class GenerateSignal():
-    def __init__(self):
-        self.selReg : int
-        self.isReg : bool
-        self.isAddr : bool
-        self.isVal : bool
-        self.isBranch : bool
-        self.isWriteReg : bool
-        self.input : bool
-        self.output : bool
-
-        self.PCsel : pcSelSignal
-        self.DRsel : drSelSignal
-        self.leftsel : leftSignal
-        self.rightsel : rightSignal
-        self.althmetic : AluOp
-
-    def generate(self, decoder : InstructionDecoder):
-        pass
-class NextGenerateState():
-    def __int__(self):
-        pass
+    def generate(self, 
+                 op :Opcode,
+                 mode1 : Mode = None,
+                 mode2 : Mode = None,
+                 dest : int = 0x0,
+                 src : int = 0x0 ):
+        if op == Opcode.RET :
+            return {
+                datapathAction.activeSelSrc : 0x3,
+                datapathAction.activeDrSel: 0x0,
+                datapathAction.activePcSel : 0x0,
+            }
+        if op == Opcode.NOP:
+            return {
+                datapathAction.activePcSel : 0x1
+            }
+        if op == Opcode.HALT:
+            return SystemSignal.END_PROGRAM
+        if op == Opcode.DI:
+            return SystemSignal.DI
+        if op == Opcode.EI:
+            return SystemSignal.EI
+        
 
 class TimingUnit():
     def __init__(self):
