@@ -7,6 +7,7 @@ from Compiler.Parser import (
     string, boolean, 
     node, literal, input,
     identifier, let,
+    set,
     expression, while_)
 from Compiler.Semantic import (
     code_generate,
@@ -112,7 +113,22 @@ class visitor():
                 elif(isinstance(nd.children[1], identifier)):
                     iden1 = self.get_lastest_identifier(nd.children[1].value)
                     if(iden1 != None):
-                        iden = iden1
+                        self.main.append(self.generator.generate_one_address_instruction(Opcode.PUSH,
+                                                                                         Mode.DIRECT_REG,
+                                                                                         0x2))
+                        self.main.append(self.generator.generate_two_address_instruction(Opcode.LOAD,
+                                                                                         Mode.DIRECT_REG,
+                                                                                         Mode.ADDRESS,
+                                                                                         0x2,
+                                                                                         iden1.value))
+                        self.main.append(self.generator.generate_two_address_instruction(Opcode.STORE,
+                                                                                         Mode.DIRECT_REG,
+                                                                                         Mode.ADDRESS,
+                                                                                         0x2,
+                                                                                         iden.value))
+                        self.main.append(self.generator.generate_one_address_instruction(Opcode.POP,
+                                                                                         Mode.DIRECT_REG,
+                                                                                         0x2))
                 elif(isinstance( nd.children[1], expression)):
                     self.visitExpressionNode(nd.children[1])
                     if(iden.type == 'address'):
@@ -713,6 +729,8 @@ class visitor():
                          .generate_zero_address_instruction(Opcode.EI))
         # EI dieu chinh 0x9 = 0x8
 
+        # 0x8 : begin heap 0x9 : current pointer to heap
+
     def visitCallNode(self, nd : node):
         if(len(nd.children) != 2):
             raise SyntaxError('call function (expression)')
@@ -917,6 +935,8 @@ def decodeAlthmeticInstruction(instr1, instr2):
 
 def decodeInstruction(instruction):
     opcode = instruction >> 24 & 0xFF
+    if(opcode == 0x80):
+        return "- string length"
     if opcode in [0, 1, 25, 26, 31]:
         return Opcode.getname(opcode) 
     
@@ -939,7 +959,7 @@ def decodeInstruction(instruction):
         return 'althmetic'
     value1 = instruction >> 16 & 0xF
     value2 = instruction & 0xFFFF
-    return Opcode.getname(opcode) + generatemodeValue(mode1, value1) + generatemodeValue(mode2, value2) 
+    return str(Opcode.getname(opcode)) + generatemodeValue(mode1, value1) + generatemodeValue(mode2, value2) 
     
 
 def createStackTrace(data):

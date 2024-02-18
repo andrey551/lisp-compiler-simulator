@@ -1,7 +1,7 @@
 import struct
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Callable, cast
+from typing import Callable
 from Semantic import Opcode, Mode
 
 
@@ -35,20 +35,24 @@ class Mux():
         to.set(self.conn[self.latch])
     def setConn(self, conn ):
         self.conn = conn
+    def setConnAt(self, index, value):
+        self.conn[index] = value
 class Memory():
     def __init__(self):
         self.data = []
         self.length = 65536
+
     def read(self, address: int):
         return self.data[address]
     def write(self, address, value):
         self.data[address] = value
-    def load(self, fileName : str, numOfInstr : int):
+    def load(self, fileName : str):
         with open (fileName, mode = 'rb') as file:
             fileContent = file.read()
-            for i in range (int(len(fileContent)/ 8)):
+            filelen =  (int(len(fileContent)/ 8))
+            for i in range (filelen):
                 self.data.append(
-                    struct.unpack('q' * int(len(fileContent)/ 8), 
+                    struct.unpack('q' * filelen, 
                                   fileContent))
         file.close()
         for i in range(len(self.data), self.length):
@@ -80,7 +84,7 @@ ALU_OP : dict[AluOp, Callable[[int, int], int]] = {
     AluOp.MOD: lambda left, right: left % right,
     AluOp.AND: lambda left, right: left & right,
     AluOp.OR: lambda left, right : left | right,
-    AluOp.NOT: lambda left, right: ~left
+    AluOp.NOT: lambda left, right: left | ~right
 }
 
 class ALU():
@@ -103,6 +107,7 @@ class ALU():
         if value < MIN_INT :
             return value - MIN_INT
         return value
+    
 @dataclass
 class GeneralRegister(Enum):
     rax = 0x0 
@@ -128,6 +133,7 @@ class GeneralRegister(Enum):
                 return i
         
         raise ValueError("enum type not found!")
+    
 @dataclass
 class pcSelSignal(Enum):
     branch = 0x0
@@ -135,8 +141,8 @@ class pcSelSignal(Enum):
 
 @dataclass
 class drSelSignal(Enum):
-    acSignal = 0x0
-    regfileSignal = 0x1
+    regSignal = 0x0
+    memSignal = 0x1
     valueSignal = 0x2
     inSignal = 0x3
 
@@ -148,14 +154,23 @@ class leftSignal(Enum):
 
 @dataclass
 class rightSignal(Enum):
-    drSignal = 0x0
-    zero = 0x1
+    zero = 0x0
+    oneSignal = 0x1
+    drSignal = 0x2
+    
+@dataclass 
+class arSelSignal(Enum):
+    memSignal = 0x0
+    valueSignal = 0x1
+    addrSignal = 0x2
     
 class RegisterFile():
     def __init__(self):
-        self.regs  = []
+        self.regs  = [Register]
         for i in range(16):
             self.regs.append(Register())
+        self.addr : int = 0x0
+        self.value : int = 0x0
     def write(self, 
               reg : GeneralRegister, 
               value: int):
@@ -163,61 +178,89 @@ class RegisterFile():
     def read(self,
              reg : GeneralRegister):
         return self.regs[reg.value].value
+    def sync(self):
+        self.value = self.regs[self.addr].get()
 
 @dataclass
 class IOState(Enum):
     Lock = 0
     Unlock = 1
 
+class InPort():
+    def __init__(self, src = None):
+        self.src = src
+    def setSrc(self, src):
+        self.src = src
+    def read(self) -> [int]: # type: ignore
+        with open(self.src , 'r') as file :
+            content = file.read
+        ascii_code = [ord(char) for char in list(content)]
+        file.close()
+        return ascii_code
+    
+class OutPort():
+    def __init__(self, dest = None):
+        self.dest = dest
+    def setDest(self, dest):
+        self.dest = dest
+    def write(self, data):
+        chars = [chr(code) for code in data]
+        with open(self.dest, 'w') as file :
+            file.write.join(''.join(chars))
+        
+        file.close()
+
+class IOBuffer():
+    def __init__(self, inPort, outPort):
+        self.size = 4096
+        self.iter = 0
+        self.memory = []
+        self.inPort = inPort
+        self.outPort = outPort
+    def checkOverflow(self):
+        if(len(self.memory) > self.size):
+            raise OverflowError('Buffer overflow')
+    def storeData(self, char):
+        self.checkOverflow()
+        self.memory.append(char)
+    def retrieveData(self) -> int:
+        if len(self.memory) == 0 :
+            raise BufferError('Failure when trying to read empty buffer')
+        ret = self.memory[len(self.memory - 1)]
+        self.memory.pop(-1)
+        return ord(ret)
+    def loadDataIn(self):
+        self.data = self.inPort.read()
+        self.checkOverflow()
+    def loadDataOut(self):
+        self.outPort.write(self.memory)
+        self.memory.clear()
+    
 class InterruptHandler():
-    def __init__(self):
+    def __init__(self, buffer : IOBuffer):
         self.state : IOState = IOState.Unlock
         self.value = 0x0
+        self.buffer = buffer
     def lock(self):
         self.state = IOState.Lock
     def unlock(self):
         self.state = IOState.Unlock
+        self.buffer.loadDataOut()
+    def checkUnlocked(self):
+        if self.state == IOState.Lock:
+            raise InterruptedError('Interrupt is not opened yet!')
+    def inSignal(self):
+        self.checkUnlocked()
+        self.value = ord(self.buffer.retrieveData())
+    def outSignal(self):
+        self.checkUnlocked()
+        self.buffer.storeData(chr(self.value))
     def getState(self):
         return self.state
     def getNextValue(self, buffer):
         self.value = buffer.extractValue()
     def writeToBuffer(self, buffer):
         buffer.insertData(self.value)
-
-class InPort():
-    def receiveData(self, src):
-        pass
-class OutPort():
-    def sendData(self, data):
-        pass
-
-class IOBuffer():
-    def __init__(self):
-        self.size = 4096
-        self.iter = 0
-        self.memory = []
-    def outProcess(self, data, port : OutPort, handler : InterruptHandler):
-        if(handler.state == IOState.Lock):
-            return
-        if(self.iter < self.size):
-            self.memory.append(data)
-            self.iter = self.iter + 1
-        else:
-            port.sendData(self.memory)
-            self.memory.clear()
-            self.iter = 0
-    def inProcess(self, port : InPort, handler : InterruptHandler):
-        if(handler.state == IOState.Lock):
-            return
-        port.receiveData("")
-
-    def insertData(self, data):
-        self.memory.append(data)
-    def extractValue(self):
-        ret = self.memory[iter]
-        self.memory.pop(self.iter)
-        self.iter = self.iter - 1
-        return ret
 
 ##########################
 class InstructionType(Enum):
