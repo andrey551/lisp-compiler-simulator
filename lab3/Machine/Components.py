@@ -7,6 +7,7 @@ from Semantic import Opcode, Mode
 
 MAX_INT = 2^30
 MIN_INT = -2^30
+
 class Register():
     def __init__(self):
         self.value = 0xFFFFFFFF
@@ -58,7 +59,10 @@ class Memory():
         file.close()
         for i in range(len(self.data), self.length):
             self.data.append(None)
-
+'''
+I should use Opcode , but to lazy to replace them 
+basically, this is Enum ALU's operator, which match with ALU_OP
+'''
 class AluOp(Enum):
     ADD = 0
     SUB = 1
@@ -68,7 +72,8 @@ class AluOp(Enum):
     AND = 5
     OR = 6
     NOT = 7
-    CMP = 8
+    LSL = 8
+    LSR = 9
     def getOp(value):
         for i in AluOp:
             if (i.value == value):
@@ -76,7 +81,9 @@ class AluOp(Enum):
         
         raise ValueError("enum type not found!")
 
-
+'''
+callable ALU operator dictionary
+'''
 ALU_OP : dict[AluOp, Callable[[int, int], int]] = {
     AluOp.ADD: lambda  left, right: left + right,
     AluOp.SUB: lambda left, right: left - right,
@@ -85,25 +92,11 @@ ALU_OP : dict[AluOp, Callable[[int, int], int]] = {
     AluOp.MOD: lambda left, right: left % right,
     AluOp.AND: lambda left, right: left & right,
     AluOp.OR: lambda left, right : left | right,
-    AluOp.NOT: lambda left, right: left | ~right
+    AluOp.NOT: lambda left, right: left | ~right,
+    AluOp.LSL : lambda left, right : left << right & 0x8FFFFFFF,
+    AluOp.LSR : lambda left, right : left >> right & 0x8FFFFFFF
 }
 
-class datapathAction(Enum):
-    activeSelDest = 0x0
-    activeDestIndirectReg = 0x1
-    activeArSel = 0x2
-    activeSelSrc = 0x3
-    activeIndirectAddr = 0x4
-    activeAlthmetic = 0x5
-    activeIn = 0x6
-    activeDrSel = 0x7
-    activeLeftSel = 0x8
-    activeRightSel = 0x9
-    activeCmp = 0xA
-    activeAC = 0xB
-    activeWriteReg = 0xC
-    activeWriteMem = 0xD
-    activePcSel = 0xE
 class ALU():
     def __init__(self):
         self.left : int = 0x0
@@ -127,6 +120,10 @@ class ALU():
             return value - MIN_INT
         return value
     
+'''
+General register enum
+basically, I only use to 0x9 but who know when I will need to use them ?
+'''
 @dataclass
 class GeneralRegister(Enum):
     rax = 0x0 
@@ -153,35 +150,35 @@ class GeneralRegister(Enum):
         
         raise ValueError("enum type not found!")
     
-@dataclass
-class pcSelSignal(Enum):
-    branch = 0x0
-    plusOne = 0x1a
+# @dataclass
+# class pcSelSignal(Enum):
+#     branch = 0x0
+#     plusOne = 0x1a
 
-@dataclass
-class drSelSignal(Enum):
-    regSignal = 0x0
-    memSignal = 0x1
-    valueSignal = 0x2
-    inSignal = 0x3
+# @dataclass
+# class drSelSignal(Enum):
+#     regSignal = 0x0
+#     memSignal = 0x1
+#     valueSignal = 0x2
+#     inSignal = 0x3
 
-@dataclass
-class leftSignal(Enum):
-    arSgnal = 0x0
-    acSignal = 0x1
-    zero = 0x2
+# @dataclass
+# class leftSignal(Enum):
+#     arSgnal = 0x0
+#     acSignal = 0x1
+#     zero = 0x2
 
-@dataclass
-class rightSignal(Enum):
-    zero = 0x0
-    oneSignal = 0x1
-    drSignal = 0x2
+# @dataclass
+# class rightSignal(Enum):
+#     zero = 0x0
+#     oneSignal = 0x1
+#     drSignal = 0x2
     
-@dataclass 
-class arSelSignal(Enum):
-    memSignal = 0x0
-    valueSignal = 0x1
-    addrSignal = 0x2
+# @dataclass 
+# class arSelSignal(Enum):
+#     memSignal = 0x0
+#     valueSignal = 0x1
+#     addrSignal = 0x2
     
 class RegisterFile():
     def __init__(self):
@@ -280,10 +277,10 @@ class InterruptHandler():
         self.buffer.storeData(chr(self.value))
     def getState(self):
         return self.state
-    def getNextValue(self, buffer):
-        self.value = buffer.extractValue()
-    def writeToBuffer(self, buffer):
-        buffer.insertData(self.value)
+    def getNextValue(self):
+        self.value = self.buffer.extractValue()
+    def writeToBuffer(self):
+        self.buffer.insertData(self.value)
     def getValue(self):
         if(self.state == IOState.Unlock):
             temp = self.value
@@ -291,13 +288,55 @@ class InterruptHandler():
             return temp
         
         return -1
+    def set(self, value):
+        if(self.state == IOState.Unlock):
+            self.value = value
+            self.writeToBuffer()
 
-##########################
+#----------------------------CU components ----------------------------------#
+
+''''
+    class for classify type of instruction, group by number of params / althmetic instr
+'''
+
 class InstructionType(Enum):
     ZeroAttribute = 0x0
     OneAttribute = 0x1
     TwoAttribute = 0x2
     AlthmeticInstruction = 0x3
+
+''''
+    class to modify dataflow without execute unneccesary action
+    for example: NOP : pc <- pc + 1
+    instead of execute all step: fetch ar, fetch dr, alu execute, check write ,...
+    datapath just simple select PC : 0x1 (pc + 1) -> update pc
+'''
+class datapathAction(Enum):
+    activeSelDest = 0x0
+    activeDestIndirectReg = 0x1
+    activeArSel = 0x2
+    activeSelSrc = 0x3
+    activeSrcIndirectReg = 0x4
+    activeIndirectAddr = 0x5
+    activeAlthmetic = 0x6
+    activeIn = 0x7
+    activeDrSel = 0x8
+    activeOut = 0x9
+    activeLeftSel = 0xA
+    activeRightSel = 0xB
+    activeCmp = 0xC
+    activeAC = 0xD
+    activeWriteReg = 0xE
+    activeWriteMem = 0xF
+    activePcSel = 0x10
+
+'''
+special signal to control system, that is not datapath's work
+'''
+class SystemSignal(Enum):
+    END_PROGRAM = 0x0
+    DI = 0x1
+    EI = 0x2
     
 class InstructionDecoder():
     def __init__(self):
@@ -305,6 +344,8 @@ class InstructionDecoder():
         self.type : InstructionType
         self.mode_1 : Mode
         self.mode_2 : Mode
+        self.dest : int
+        self.src : int
     def decode(self, ir: Register):
         value = ir.get()
         self.opcode = Opcode.getname(value >> 24 & 0xFF)
@@ -318,36 +359,27 @@ class InstructionDecoder():
             self.type = InstructionType.AlthmeticInstruction
         self.mode_1 = Mode.getMode(value >> 22 & 0x3)
         self.mode_2 = Mode.getMode(value >> 20 & 0x3)
+        self.dest = Mode.getMode(value >> 16 & 0xF)
+        self.src = Mode.getMode(value & 0xFFFF)
 
-class SystemSignal(Enum):
-    END_PROGRAM = 0x0
-    DI = 0x1
-    EI = 0x2
-class GenerateSignal():
-    def generate(self, 
-                 op :Opcode,
-                 mode1 : Mode = None,
-                 mode2 : Mode = None,
-                 dest : int = 0x0,
-                 src : int = 0x0 ):
-        if op == Opcode.RET :
-            return {
-                datapathAction.activeSelSrc : 0x3,
-                datapathAction.activeDrSel: 0x0,
-                datapathAction.activePcSel : 0x0,
-            }
-        if op == Opcode.NOP:
-            return {
-                datapathAction.activePcSel : 0x1
-            }
-        if op == Opcode.HALT:
-            return SystemSignal.END_PROGRAM
-        if op == Opcode.DI:
-            return SystemSignal.DI
-        if op == Opcode.EI:
-            return SystemSignal.EI
-        
+'''
+    class to save data, which  is reused for instruction more-than-one machine word
+'''
+class NextInstructionPreparation():
+    def __init__(self):
+        self.nextIsData = False
+        self.operator :AluOp
+        self.destAddr : int
+    def on(self):
+        self.nextIsData = True
+    def off(self):
+        self.nextIsData = False
+    def isOn(self):
+        return self.nextIsData
 
+'''
+    time unit
+'''
 class TimingUnit():
     def __init__(self):
         self.tick = 0
@@ -355,3 +387,354 @@ class TimingUnit():
         self.tick = self.tick + 1
     def getTick(self):
         return self.tick
+'''
+    classify, generate signal to datapath
+    main function : generateSignal()
+'''
+class GenerateSignal():
+    def __init__(self):
+        self.nextSignal = NextInstructionPreparation()
+    def generateSrcSignal(self, mode : Mode, src):
+        if mode == Mode.DIRECT_REG:
+            return {
+                datapathAction.activeSelSrc : src,
+                datapathAction.activeDrSel : 0x0
+            }
+        if mode == Mode.INDIRECT_REG:
+            return {
+                datapathAction.activeSelSrc : src,
+                datapathAction.activeSrcIndirectReg : 0x1,
+                datapathAction.activeDrSel : 0x1
+            }
+        if mode == Mode.ADDRESS:
+            return {
+                datapathAction.activeSelSrc : src,
+                datapathAction.activeIndirectAddr : 0x1,
+                datapathAction.activeDrSel : 0x1
+            }
+        if mode == Mode.VALUE:
+            return {
+                datapathAction.activeSelSrc: src,
+                datapathAction.activeDrSel : 0x2
+            }
+    def generateDestSignal(self, mode: Mode, dest):
+        if mode == Mode.DIRECT_REG:
+            return {
+                datapathAction.activeSelDest : dest,
+                datapathAction.activeArSel : 0x0
+            }
+        if mode == Mode.INDIRECT_REG :
+            return {
+                datapathAction.activeSelDest : dest,
+                datapathAction.activeDestIndirectReg : 0x1,
+                datapathAction.activeArSel : 0x1
+            }
+    def generateWriteBackSignal(self, mode : Mode) :
+        if mode == Mode.DIRECT_REG :
+            return {
+                datapathAction.activeWriteReg : 0x1
+            }
+        else :
+            return {
+                datapathAction.activeWriteMem : 0x1
+            }
+    def Opcode2AluOp(self,
+                              op: Opcode):
+        if op == Opcode.ADD:
+            return AluOp.ADD
+        if op == Opcode.SUB:
+            return AluOp.SUB
+        if op == Opcode.MUL:
+            return AluOp.MUL
+        if op == Opcode.DIV:
+            return AluOp.DIV
+        if op == Opcode.MOD:
+            return AluOp.MOD
+        if op == Opcode.AND:
+            return AluOp.AND
+        if op == Opcode.OR:
+            return AluOp.OR
+    def generateZeroType(self, 
+                 op :Opcode ):
+        if op == Opcode.RET :
+            return {
+                datapathAction.activeSelSrc : 0x3,
+                datapathAction.activeDrSel: 0x0,
+                datapathAction.activePcSel : 0x0,
+            }
+        if op == Opcode.NOP:
+            return [{
+                datapathAction.activePcSel : 0x1
+            }]
+        if op == Opcode.HALT:
+            return [SystemSignal.END_PROGRAM]
+        if op == Opcode.DI:
+            return [SystemSignal.DI]
+        if op == Opcode.EI:
+            return [SystemSignal.EI]
+    def generateFirtsType(self, 
+                              op : Opcode,
+                              mode : Mode,
+                              src, 
+                              z : bool = False,
+                              p : bool = False ):
+        if op == Opcode.JMP:
+            loaddata : dict = self.generateSrcSignal(mode, src)
+            return [{
+                **loaddata,
+                datapathAction.activePcSel  : 0x0
+            }]
+        if op == Opcode.CALL:
+            pass
+
+        if op in  [Opcode.BGT, Opcode.BEQ]:
+            if (p and op == Opcode.BGT) or (z and op == Opcode.BEQ) :
+                loaddata : dict = self.generateSrcSignal(mode, src)
+                return [{
+                    **loaddata,
+                    datapathAction.activePcSel  : 0x0
+                }]
+            else :
+                return [{
+                    datapathAction.activePcSel : 0x1
+                }]
+        if op == Opcode.IN:
+            loaddata : dict = self.generateDestSignal(mode, src)
+            loadwrite : dict = self.generateWriteBackSignal(mode)
+            return [{
+                **loaddata,
+                datapathAction.activeIn : 0x1,
+                datapathAction.activeDrSel : 0x3,
+                datapathAction.activeLeftSel : 0x2,
+                datapathAction.activeRightSel : 0x2,
+                datapathAction.activeAC : AluOp.OR,
+                **loadwrite,
+                datapathAction.activePcSel : 0x1
+            }]
+        if op == Opcode.OUT:
+            loaddata : dict = self.generateSrcSignal(mode, src)
+            return [{
+                **loaddata,
+                datapathAction.activeOut: 0x1,
+                datapathAction.activePcSel : 0x1
+            }]
+        if op == Opcode.PUSH:
+            loaddata : dict = self.generateSrcSignal(mode, src)
+            return [
+                {
+                    datapathAction.activeSelDest: 0x4,
+                    datapathAction.activeArSel: 0x1,
+                    **loaddata,
+                    datapathAction.activeLeftSel: 0x2,
+                    datapathAction.activeRightSel: 0x2,
+                    datapathAction.activeAC: AluOp.OR,
+                    datapathAction.activeWriteMem: 0x1
+
+                },
+                {
+                    datapathAction.activeSelDest: 0x4,
+                    datapathAction.activeArSel: 0x1,
+                    datapathAction.activeLeftSel: 0x0,
+                    datapathAction.activeRightSel: 0x1,
+                    datapathAction.activeAC: AluOp.SUB
+                },
+                {
+                    datapathAction.activeSelDest: 0x4,
+                    datapathAction.activeArSel: 0x2,
+                    datapathAction.activeWriteReg: 0x1,
+                    datapathAction.activePcSel: 0x1
+                }
+            ]
+
+        if op == Opcode.POP:
+            return [
+                {
+                    datapathAction.activeSelDest: src,
+                    datapathAction.activeArSel: 0x2,
+                    datapathAction.activeSelSrc: 0x4,
+                    datapathAction.activeDrSel: 0x0,
+                    datapathAction.activeLeftSel: 0x2,
+                    datapathAction.activeRightSel: 0x2,
+                    datapathAction.activeAC: AluOp.OR,
+                    datapathAction.activeWriteMem: 0x1
+                },
+                {
+                    datapathAction.activeSelDest: 0x4,
+                    datapathAction.activeArSel: 0x1,
+                    datapathAction.activeLeftSel: 0x0,
+                    datapathAction.activeRightSel: 0x1,
+                    datapathAction.activeAC: AluOp.ADD
+                },
+                {
+                    datapathAction.activeSelDest: 0x4,
+                    datapathAction.activeArSel: 0x2,
+                    datapathAction.activeWriteReg: 0x1,
+                    datapathAction.activePcSel: 0x1
+                }
+            ]
+        
+        if op in [Opcode.INC, Opcode.NOT]:
+            loadaddr : dict = self.generateDestSignal(mode, src)
+            loaddata : dict = self.generateSrcSignal(mode, src)
+            loadwrite : dict = self.generateWriteBackSignal(mode)
+            return [{
+                **loadaddr,
+                **loaddata,
+                datapathAction.activeArSel : 0x2,
+                datapathAction.activeLeftSel: 0x2,
+                datapathAction.activeRightSel : 0x2,
+                datapathAction.activeAC : AluOp.ADD if op == Opcode.INC else AluOp.NOT,
+                **loadwrite,
+                datapathAction.activePcSel : 0x1
+            }]
+    def generateSecondType(self, 
+                           op : Opcode,
+                           mode1 : Mode,
+                           mode2 : Mode,
+                           dest : int,
+                           src : int):
+        if op == Opcode.LOAD:
+            loadaddr : dict = self.generateDestSignal(mode1, dest)
+            loaddata : dict = self.generateSrcSignal(mode2, src)
+            return [{
+                **loadaddr,
+                **loaddata,
+                datapathAction.activeLeftSel : 0x2,
+                datapathAction.activeRightSel : 0x2,
+                datapathAction.activeAC : AluOp.OR,
+                datapathAction.activeWriteReg : 0x1,
+                datapathAction.activePcSel : 0x1
+            }]
+        if op == Opcode.STORE:
+            loaddata : dict = self.generateSrcSignal(mode1, dest)
+            return [{
+                datapathAction.activeSelDest : src,
+                datapathAction.activeArSel: 0x2,
+                **loaddata,
+                datapathAction.activeLeftSel: 0x2,
+                datapathAction.activeRightSel : 0x2,
+                datapathAction.activeWriteMem: 0x1,
+                datapathAction.activePcSel : 0x1
+            }]
+        if op == Opcode.CMP:
+            loadaddr: dict = self.generateDestSignal(mode1, dest)
+            loaddata : dict = self.generateSrcSignal(mode2, src)
+            return [{
+                **loadaddr,
+                **loaddata,
+                datapathAction.activeLeftSel : 0x0,
+                datapathAction.activeRightSel: 0x2,
+                datapathAction.activeCmp : 0x1,
+                datapathAction.activePcSel: 0x1
+            }]
+        if op == Opcode.MOV:
+            loadaddr: dict = self.generateDestSignal(mode1, dest)
+            loaddata : dict = self.generateSrcSignal(mode2, src)
+            loadwrite : dict = self.generateWriteBackSignal(mode1)
+            return [{
+                **loadaddr,
+                **loaddata,
+                datapathAction.activeLeftSel: 0x2,
+                datapathAction.activeRightSel : 0x2,
+                datapathAction.activeAC : AluOp.OR,
+                **loadwrite,
+                datapathAction.activePcSel : 0x1 
+            }]
+        if op in [Opcode.LSL, Opcode.LSR]:
+            loadaddr: dict = self.generateDestSignal(mode1, dest)
+            loaddata : dict = self.generateSrcSignal(mode2, src)
+            return [
+                {
+                    **loadaddr,
+                    **loaddata,
+                    datapathAction.activeArSel: 0x1,
+                    datapathAction.activeLeftSel: 0x0,
+                    datapathAction.activeRightSel: 0x2,
+                    datapathAction.activeAC: AluOp.LSL if op == Opcode.LSL else AluOp.LSR
+                 },
+                 {
+                     datapathAction.activeArSel: 0x2,
+                     datapathAction.activeWriteReg : 0x1,
+                     datapathAction.activePcSel: 0x1
+                 }
+            ]
+    def generateAlthmeticType(self, 
+                              op : Opcode,
+                              mode1 : Mode,
+                              mode2 : Mode,
+                              dest, 
+                              src) :
+        operator = self.Opcode2AluOp(op)
+        if mode2 != Mode.VALUE:
+            loadaddr: dict = self.generateDestSignal(mode1, dest)
+            loaddata : dict = self.generateSrcSignal(mode2, src)
+            return [
+                {
+                    **loadaddr,
+                    **loaddata,
+                    datapathAction.activeArSel: 0x1,
+                    datapathAction.activeLeftSel: 0x0,
+                    datapathAction.activeRightSel: 0x2,
+                    datapathAction.activeAC: operator
+                    },
+                    {
+                        datapathAction.activeArSel: 0x2,
+                        datapathAction.activeWriteReg : 0x1,
+                        datapathAction.activePcSel: 0x1
+                    }
+            ]
+        else:
+            self.nextSignal.on()
+            self.nextSignal.operator = operator
+            self.nextSignal.destAddr = dest
+            loadaddr: dict = self.generateDestSignal(mode1, dest)
+            return [{
+                **loadaddr,
+                datapathAction.activeArSel : 0x1,
+                datapathAction.activePcSel: 0x1
+            }]
+    def DataInstruction(self):
+        return [
+            {
+                datapathAction.activeAlthmetic: 0x1,
+                datapathAction.activeDrSel: 0x2,
+                datapathAction.activeLeftSel: 0x0,
+                datapathAction.activeRightSel: 0x2,
+                datapathAction.activeAC: self.nextSignal.operator
+             },
+            {
+                datapathAction.activeArSel: 0x2,
+                datapathAction.activeWriteReg : 0x1,
+                datapathAction.activePcSel: 0x1
+            }
+        ]
+    
+    def generateSignal(self, 
+                       type : InstructionType,
+                       op: Opcode,
+                       mode1: Mode = None,
+                       dest : int = 0,
+                       z: bool = False,
+                       p : bool = False,
+                       mode2 : Mode = None,
+                       src : int = 0
+                       ):
+        if self.nextSignal.isOn():
+            self.nextSignal.off()
+            return self.DataInstruction()
+        else:
+            if type == InstructionType.ZeroAttribute:
+                return self.generateZeroType(op)
+            if type == InstructionType.OneAttribute:
+                return self.generateFirtsType(op, mode1, dest, z, p)
+            if type == InstructionType.TwoAttribute:
+                return self.generateSecondType(op, mode1, mode2, dest, src)
+            if type == InstructionType.AlthmeticInstruction:
+                return self.generateAlthmeticType(op, mode1, mode2,dest, src )
+        return []
+
+
+
+        
+
+

@@ -10,4 +10,3 @@ exec = executor(nodeList)
 root = exec.build()
 root.print()
 trans = translate(root)
-
