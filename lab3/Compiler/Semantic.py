@@ -141,11 +141,16 @@ class Opcode(Enum):
     LSR = 20
     ASR = 21
     INC = 27
+    RB = 28
 
     def getname(value):
         for i in Opcode:
             if(i.value == value):
                 return i.name
+    def get(value):
+        for i in Opcode:
+            if(i.value == value):
+                return i
 class Mode(Enum):
     DIRECT_REG = 0
     INDIRECT_REG = 1
@@ -156,6 +161,11 @@ class Mode(Enum):
         for i in Mode:
             if(value == i.value):
                 return i
+class OutMode(Enum):
+    REG = 0x0
+    BUF = 0x1
+    ADDRESS = 0x2
+    
 class code_generate():
     def __init__(self):
         self.desc = []
@@ -172,7 +182,11 @@ class code_generate():
         if(mode_1.value > 1):
             raise ValueError('opcode <reg> <reg/address>')
         return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
-
+    def generate_out_instruction(self,
+                                op: Opcode,
+                                mode : OutMode,
+                                src : int):
+        return op.value << 24 | mode.value << 20 | src
     def generate_althmetic_instruction(self,
                                op: Opcode,
                                mode_1: Mode,

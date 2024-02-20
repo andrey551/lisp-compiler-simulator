@@ -1,9 +1,7 @@
-DEBUG:root:hello
-DEBUG:root:hello
-DEBUG:root:world
-DEBUG:root:hello
-DEBUG:root:world
-DEBUG:root:hello
-DEBUG:root:hello : world
-DEBUG:root:hello , world
-DEBUG:root:hello , world
+DEBUG:root: tick: 0, AC: 0, AR: 0, DR: 0, PC: 29, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: False
+DEBUG:root: tick: 1, AC: 0, AR: 0, DR: 0, PC: 29, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: False
+DEBUG:root: tick: 4, AC: 0, AR: 0, DR: 0, PC: 30, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
+DEBUG:root: tick: 5, AC: 0, AR: 0, DR: 2, PC: 31, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
+DEBUG:root: tick: 6, AC: 0, AR: 0, DR: 20, PC: 32, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
+DEBUG:root: tick: 7, AC: 0, AR: 0, DR: 0, PC: 0, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
+DEBUG:root: tick: 8, AC: 0, AR: 0, DR: 0, PC: 1, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True

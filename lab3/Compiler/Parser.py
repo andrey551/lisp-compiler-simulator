@@ -15,9 +15,6 @@ class node(ABC):
             i.print(level + 1)
     def set_address(self, addr: int):
         self.address = addr
-    @abstractmethod
-    def build(self):
-        pass
 
 class expression(node):
     def build(self):
@@ -55,8 +52,6 @@ class identifier(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 0
-    def build(self):
-        pass
 
 class mathematic_operant(node):
     def __init__(self, 
@@ -65,8 +60,6 @@ class mathematic_operant(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
 
 class logical_operant(node):
     def __init__(self, 
@@ -75,8 +68,7 @@ class logical_operant(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 2
-    def build(self):
-        pass
+
 
 class if_clause(node):
     def __init__(self, 
@@ -84,8 +76,6 @@ class if_clause(node):
                name = None, 
                value = None):
         node.__init__(self, tokens, name, value)
-    def build(self):
-        pass
 
 class set(node):
     def __init__(self, 
@@ -94,8 +84,6 @@ class set(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 2
-    def build(self):
-        pass
 
 class let(node):
     def __init__(self, 
@@ -104,8 +92,6 @@ class let(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 2
-    def build(self):
-        pass
 
 class printf(node):
     def __init__(self, 
@@ -114,8 +100,6 @@ class printf(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
 
 class defun(node):
     def __init__(self, 
@@ -124,8 +108,6 @@ class defun(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 3
-    def build(self):
-        pass
 
 class call(node):
     def __init__(self, 
@@ -134,8 +116,6 @@ class call(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 2
-    def build(self):
-        pass
 
 class input(node):
     def __init__(self, 
@@ -144,8 +124,6 @@ class input(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
 
 class for_clause(node):
     def __init__(self, 
@@ -154,8 +132,6 @@ class for_clause(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 3
-    def build(self):
-        pass
 
 class loop(node):
     def __init__(self, 
@@ -164,8 +140,6 @@ class loop(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 2
-    def build(self):
-        pass
 # expression can have multiple children
 # literal have 0 child node
 # identifier is node itself
@@ -189,8 +163,6 @@ class left(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 0
-    def build(self):
-        pass
 
 class right(node):
     def __init__(self, 
@@ -199,8 +171,6 @@ class right(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 0
-    def build(self):
-        pass
 
 class fr(node):
     def __init__(self, 
@@ -209,8 +179,6 @@ class fr(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
 
 class to(node):
     def __init__(self, 
@@ -219,8 +187,6 @@ class to(node):
                value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
 class while_(node):
     def __init__(self, 
                  tokens,
@@ -228,8 +194,6 @@ class while_(node):
                  value = None):
         node.__init__(self, tokens, name, value)
         self.params = 2
-    def build(self):
-        pass
 class return_(node):
     def __init__(self, 
                  tokens,
@@ -237,8 +201,6 @@ class return_(node):
                  value = None):
         node.__init__(self, tokens, name, value)
         self.params = 1
-    def build(self):
-        pass
 
 def tokensToNodes(tokens):
     ret = []

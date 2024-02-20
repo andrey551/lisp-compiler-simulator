@@ -2,15 +2,17 @@ import struct
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
-from Semantic import Opcode, Mode
+from Compiler.Semantic import Opcode, Mode, OutMode
+import logging
 
+logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
 
 MAX_INT = 2^30
 MIN_INT = -2^30
 
 class Register():
     def __init__(self):
-        self.value = 0xFFFFFFFF
+        self.value = 0x0
     def set(self, value):
         self.value = value
     def get(self):
@@ -42,7 +44,7 @@ class Mux():
 class Memory():
     def __init__(self):
         self.data = []
-        self.length = 65536
+        self.length = 4000
 
     def read(self, address: int):
         return self.data[address]
@@ -50,15 +52,13 @@ class Memory():
         self.data[address] = value
     def load(self, fileName : str):
         with open (fileName, mode = 'rb') as file:
-            fileContent = file.read()
-            filelen =  (int(len(fileContent)/ 8))
-            for i in range (filelen):
-                self.data.append(
-                    struct.unpack('q' * filelen, 
-                                  fileContent))
+            while True:
+                fileContent = file.read(8)
+                if not fileContent: 
+                    break
+                long_integer = struct.unpack('<q', fileContent)[0]
+                self.data.append(long_integer)
         file.close()
-        for i in range(len(self.data), self.length):
-            self.data.append(None)
 '''
 I should use Opcode , but to lazy to replace them 
 basically, this is Enum ALU's operator, which match with ALU_OP
@@ -103,6 +103,11 @@ class ALU():
         self.right : int = 0x0
         self.p : bool = False
         self.z : bool = False
+    def reset(self):
+        self.left : int = 0x0
+        self.right : int = 0x0
+        self.p : bool = False
+        self.z : bool = False
     def execute(self, op: AluOp) -> int:
         operant = ALU_OP[op]
         ret = operant(self.left, self.right)
@@ -112,6 +117,7 @@ class ALU():
     def set_flags(self, value):
         self.p = value > 0
         self.z = value == 0
+
     @staticmethod
     def handle_overflow(value : int) -> int:
         if value > MAX_INT :
@@ -182,7 +188,7 @@ class GeneralRegister(Enum):
     
 class RegisterFile():
     def __init__(self):
-        self.regs  = [Register]
+        self.regs  = []
         for i in range(16):
             self.regs.append(Register())
         self.addr : int = 0x0
@@ -199,7 +205,8 @@ class RegisterFile():
             return
         return self.regs[reg].value
     def sync(self):
-        self.value = self.regs[self.addr].get()
+        if(self.addr <= 0x8): 
+            self.value = self.regs[self.addr].get()
 
 @dataclass
 class IOState(Enum):
@@ -208,90 +215,74 @@ class IOState(Enum):
 
 class InPort():
     def __init__(self, src = None):
-        self.src = src
-    def setSrc(self, src):
-        self.src = src
-    def read(self) -> [int]: # type: ignore
-        with open(self.src , 'r') as file :
-            content = file.read
-        ascii_code = [ord(char) for char in list(content)]
+        self.iter = 0
+        with open(src , 'r') as file :
+            self.ascii_code = [ord(char) for char in list(file.read())]
         file.close()
-        return ascii_code
+    def read(self) -> int:
+        self.iter = self.iter + 1
+        return self.ascii_code[self.iter - 1]
     
 class OutPort():
     def __init__(self, dest = None):
-        self.dest = dest
-    def setDest(self, dest):
-        self.dest = dest
+        self.dest = open(dest, 'w')
     def write(self, data):
-        chars = [chr(code) for code in data]
-        with open(self.dest, 'w') as file :
-            file.write.join(''.join(chars))
-        
-        file.close()
+        self.dest.write(data)
+        logging.debug('Out: %s', data)
+    def close(self):
+        self.dest.close()
 
 class IOBuffer():
-    def __init__(self, inPort = None, outPort = None):
-        self.size = 4096
-        self.iter = 0
+    def __init__(self):
+        self.size = 500
         self.memory = []
-        self.inPort = inPort
-        self.outPort = outPort
+        self.mappedTable : dict = {}
+        self.crtReadElement = 0
+        self.crtReadIter = 0
+        self.crtWrite = 0
     def checkOverflow(self):
         if(len(self.memory) > self.size):
             raise OverflowError('Buffer overflow')
-    def storeData(self, char):
+    def loadDataIn(self, data):
+        self.data.append(data)
+        if data == 10:
+            self.crtWrite = self.crtWrite + 1
+            self.mappedTable[self.crtWrite] = len(self.memory)
         self.checkOverflow()
-        self.memory.append(char)
-    def retrieveData(self) -> int:
-        if len(self.memory) == 0 :
-            raise BufferError('Failure when trying to read empty buffer')
-        ret = self.memory[len(self.memory - 1)]
-        self.memory.pop(-1)
-        return ord(ret)
-    def loadDataIn(self):
-        self.data = self.inPort.read()
-        self.checkOverflow()
-    def loadDataOut(self):
-        self.outPort.write(self.memory)
-        self.memory.clear()
+    def resetRead(self):
+        self.crtReadElement = 0
+        self.crtReadIter = 0
+    def loadDataOut(self, element) -> int:
+        self.crtReadElement = element
+        self.crtReadIter = self.crtReadIter + 1
+        crtAddr = self.mappedTable[element]
+        return self.memory[crtAddr + self.crtReadIter - 1]
+    def createInstance(self, inx):
+        self.mappedTable[inx] = 0
     
 class InterruptHandler():
-    def __init__(self, buffer : IOBuffer):
+    def __init__(self, 
+                 inport : InPort, 
+                 outPort: OutPort):
         self.state : IOState = IOState.Unlock
         self.value = 0x0
-        self.buffer = buffer
+        self.inport = inport
+        self.outport = outPort
     def lock(self):
         self.state = IOState.Lock
     def unlock(self):
         self.state = IOState.Unlock
-        self.buffer.loadDataOut()
     def checkUnlocked(self):
         if self.state == IOState.Lock:
             raise InterruptedError('Interrupt is not opened yet!')
-    def inSignal(self):
-        self.checkUnlocked()
-        self.value = ord(self.buffer.retrieveData())
-    def outSignal(self):
-        self.checkUnlocked()
-        self.buffer.storeData(chr(self.value))
     def getState(self):
         return self.state
-    def getNextValue(self):
-        self.value = self.buffer.extractValue()
-    def writeToBuffer(self):
-        self.buffer.insertData(self.value)
-    def getValue(self):
+    def toOut(self, data):
         if(self.state == IOState.Unlock):
-            temp = self.value
-            self.getNextValue()
-            return temp
-        
-        return -1
-    def set(self, value):
+            self.outport.write(data)
+    def fromIn(self):
         if(self.state == IOState.Unlock):
-            self.value = value
-            self.writeToBuffer()
+            return self.inport.read()
 
 #----------------------------CU components ----------------------------------#
 
@@ -321,14 +312,15 @@ class datapathAction(Enum):
     activeAlthmetic = 0x6
     activeIn = 0x7
     activeDrSel = 0x8
-    activeOut = 0x9
-    activeLeftSel = 0xA
-    activeRightSel = 0xB
-    activeCmp = 0xC
-    activeAC = 0xD
-    activeWriteReg = 0xE
-    activeWriteMem = 0xF
-    activePcSel = 0x10
+    activeBufferRead = 0x9
+    activeOut = 0xA
+    activeLeftSel = 0xB
+    activeRightSel = 0xC
+    activeCmp = 0xD
+    activeAC = 0xE
+    activeWriteReg = 0xF
+    activeWriteMem = 0x10
+    activePcSel = 0x11
 
 '''
 special signal to control system, that is not datapath's work
@@ -348,19 +340,19 @@ class InstructionDecoder():
         self.src : int
     def decode(self, ir: Register):
         value = ir.get()
-        self.opcode = Opcode.getname(value >> 24 & 0xFF)
-        if self.opcode in [ 0, 1, 25, 26, 31]:
+        self.opcode = Opcode.get(value >> 24 & 0xFF)
+        if self.opcode.value in [ 0, 1, 6, 7, 25, 26, 31]:
             self.type = InstructionType.ZeroAttribute
-        elif self.opcode in [2, 3, 4, 5, 6, 7, 8, 9, 27]:
+        elif self.opcode.value in [2, 3, 4, 5, 6, 7, 8, 9, 27, 28]:
             self.type = InstructionType.OneAttribute
-        elif self.opcode in [10, 11, 19, 20, 21, 22, 23, 24]:
+        elif self.opcode.value in [10, 11, 19, 20, 21, 22, 23, 24]:
             self.type = InstructionType.TwoAttribute
         else:
             self.type = InstructionType.AlthmeticInstruction
         self.mode_1 = Mode.getMode(value >> 22 & 0x3)
         self.mode_2 = Mode.getMode(value >> 20 & 0x3)
-        self.dest = Mode.getMode(value >> 16 & 0xF)
-        self.src = Mode.getMode(value & 0xFFFF)
+        self.dest = value >> 16 & 0xF
+        self.src = value & 0xFFFF
 
 '''
     class to save data, which  is reused for instruction more-than-one machine word
@@ -469,9 +461,32 @@ class GenerateSignal():
         if op == Opcode.HALT:
             return [SystemSignal.END_PROGRAM]
         if op == Opcode.DI:
-            return [SystemSignal.DI]
+            return [SystemSignal.DI, {
+                        datapathAction.activePcSel: 0x1
+                    }]
         if op == Opcode.EI:
-            return [SystemSignal.EI]
+            return [SystemSignal.EI, {
+                        datapathAction.activePcSel: 0x1
+                    }]
+        if op == Opcode.IN:
+            return [{
+                datapathAction.activeSelDest : 0x8,
+                datapathAction.activeArSel : 0x2,
+                datapathAction.activeIn: 0x1,
+                datapathAction.activeDrSel : 0x3,
+                datapathAction.activeLeftSel: 0x2,
+                datapathAction.activeRightSel: 0x2,
+                datapathAction.activeAC: AluOp.OR,
+                datapathAction.activeWriteReg: 0x1,
+                datapathAction.activePcSel: 0x1
+            }]
+        if op == Opcode.OUT:
+            return [{
+                datapathAction.activeSelSrc : 0x8,
+                datapathAction.activeDrSel: 0x0,
+                datapathAction.activeOut: 0x1,
+                datapathAction.activePcSel: 0x1
+            }]
     def generateFirtsType(self, 
                               op : Opcode,
                               mode : Mode,
@@ -498,26 +513,7 @@ class GenerateSignal():
                 return [{
                     datapathAction.activePcSel : 0x1
                 }]
-        if op == Opcode.IN:
-            loaddata : dict = self.generateDestSignal(mode, src)
-            loadwrite : dict = self.generateWriteBackSignal(mode)
-            return [{
-                **loaddata,
-                datapathAction.activeIn : 0x1,
-                datapathAction.activeDrSel : 0x3,
-                datapathAction.activeLeftSel : 0x2,
-                datapathAction.activeRightSel : 0x2,
-                datapathAction.activeAC : AluOp.OR,
-                **loadwrite,
-                datapathAction.activePcSel : 0x1
-            }]
-        if op == Opcode.OUT:
-            loaddata : dict = self.generateSrcSignal(mode, src)
-            return [{
-                **loaddata,
-                datapathAction.activeOut: 0x1,
-                datapathAction.activePcSel : 0x1
-            }]
+
         if op == Opcode.PUSH:
             loaddata : dict = self.generateSrcSignal(mode, src)
             return [
@@ -587,6 +583,33 @@ class GenerateSignal():
                 **loadwrite,
                 datapathAction.activePcSel : 0x1
             }]
+        if op == Opcode.RB:
+            temp : dict = {
+                    datapathAction.activeSelSrc: src,
+                    datapathAction.activeSelDest: 0x8,
+                    datapathAction.activeArSel: 0x2,
+                    datapathAction.activeLeftSel: 0x2,
+                    datapathAction.activeRightSel: 0x2,
+                    datapathAction.activeAC: AluOp.OR,
+                    datapathAction.activeWriteReg: 0x1,
+                    datapathAction.activePcSel: 0x1
+            }
+            if mode == OutMode.REG:
+                return [{
+                    datapathAction.activeDrSel: 0x0,
+                    **temp
+                }]
+            if mode == OutMode.ADDRESS:
+                return [{
+                    datapathAction.activeIndirectAddr: 0x1,
+                    datapathAction.activeDrSel: 0x1,
+                    **temp
+                }]
+            if mode == OutMode.BUF:
+                return[{
+                    datapathAction.activeBufferRead: src,
+                    **temp
+                }]
     def generateSecondType(self, 
                            op : Opcode,
                            mode1 : Mode,
@@ -624,7 +647,7 @@ class GenerateSignal():
                 **loaddata,
                 datapathAction.activeLeftSel : 0x0,
                 datapathAction.activeRightSel: 0x2,
-                datapathAction.activeCmp : 0x1,
+                datapathAction.activeCmp : AluOp.SUB,
                 datapathAction.activePcSel: 0x1
             }]
         if op == Opcode.MOV:

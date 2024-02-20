@@ -1,5 +1,5 @@
-from lab3.Machine.Components import GenerateSignal, InstructionDecoder, NextInstructionPreparation, SystemSignal, TimingUnit
-from lab3.Machine.Datapath import Datapath
+from Machine.Components import GenerateSignal, InstructionDecoder, SystemSignal, TimingUnit
+from Machine.Datapath import Datapath
 
 
 
@@ -26,20 +26,28 @@ class CU:
                                          self.decoder.opcode,
                                          self.decoder.mode_1,
                                          self.decoder.dest,
-                                         self.datapath.ALU.p,
                                          self.datapath.ALU.z,
+                                         self.datapath.ALU.p,
                                          self.decoder.mode_2,
                                          self.decoder.src
                                          )
+            print(signals)
             if isinstance(signals[0], SystemSignal):
                 if signals[0] == SystemSignal.END_PROGRAM:
                     break
                 if signals[0] == SystemSignal.DI:
                     self.datapath.interruptHandler.unlock()
+                    self.datapath.runCycle(signals[1])
+                    self.datapath.getLog(self.tu.getTick())
+                    self.tu.inc()
                 if signals[0] == SystemSignal.EI:
                     self.datapath.interruptHandler.lock()
+                    self.datapath.buffer.resetRead()
+                    self.datapath.runCycle(signals[1])
+                    self.datapath.getLog(self.tu.getTick())
+                    self.tu.inc()
             else:
                 for i in signals:
                     self.datapath.runCycle(i)
                     self.tu.inc()
-                self.datapath.getLog(self.tu.getTick())
+            self.datapath.getLog(self.tu.getTick())

@@ -10,14 +10,6 @@ there are 26 instruction, so it should be stored in 5 bits
 
 I : Mode(2bit)
 
-1. 0-addressing instruction
-    1.1 RET(00001) transfers the contents of rbx(address that program counter lies on) to the PC(program counter). 
-    1.2 NOP(00000) do nothing
-    1.3 HALT(11111) end program 
-    1.4 DI(11001) start interrupt
-    1.5 EI(11010) end interrupt
-    instruction format: [opcode(5)]
-
 # rax : 0x0
 # rbx : 0x3
 # rcx: 0x1
@@ -26,9 +18,17 @@ I : Mode(2bit)
 # sbp: 0x5 : begin of stack( end of memory) 
 # rsi: 0x6
 # rdi: 0x7
-# r8: heap pointer : 0x8
-# r9 -> r15
-# r10 : IO reg
+# r8: IO reg
+
+1. 0-addressing instruction
+    1.1 RET(00001) transfers the contents of rbx(address that program counter lies on) to the PC(program counter). 
+    1.2 NOP(00000) do nothing
+    1.3 HALT(11111) end program 
+    1.4 DI(11001) start interrupt
+    1.5 EI(11010) end interrupt
+    1.6 IN(00110) - interrupt in
+    1.7 OUT(00111) - interrupt out
+    instruction format: [opcode(5)]
     
 2. 1-addressing instruction
     2.1 JMP(00010) - jump to specific address
@@ -36,14 +36,13 @@ I : Mode(2bit)
     It transfers control to the label and saves the return address in register 
     2.3 BEQ(00100) - branch if equal(Z = 0)
     2.4 BGT(00101) - branch if greater than()
-    2.5 IN(00110) - interrupt in
-    2.6 OUT(00111) - interrupt out
-    2.7 PUSH(01000)
-    2.8 POP (01001)
-    2.9 INC (11011)
+    2.5 PUSH(01000)
+    2.6 POP (01001)
+    2.7 INC (11011)
+    2.8 NOT(11000)
+    2.9 RB(11100)
     instruction format: [opcode(5)][I(2)][value] ( length change)
-
-
+    
 3. 2-addressing instruction
     3.1 LOAD(01010) - loads values from memory into registers
     3.2 STORE(01011) -  saves values in registers to memory locations
@@ -54,11 +53,8 @@ I : Mode(2bit)
     3.4 MOV(10111) - transfer values from one register to another, or can load a register with a constant
     mov from to
         instruction format: [opcode(5)][I - 1(1)][reg-dest(4)][(4)][reg-source(4)/immediate(18)]
-    3.5 NOT(11000)
-        [opcode][I(2)][I(2)][value][value] (length change)
     3.6 LSL(10011) - shifts the value in the first source register to the left
     3.7 LSR(10100) - shifts the value in the first source register to the right.
-    3.8 ASR(10101) - performs an arithmetic right shift
 4. althmetic instruction
     4.1 ADD(01100)
     4.2 SUB(01101) 

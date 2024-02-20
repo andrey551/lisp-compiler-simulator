@@ -10,10 +10,13 @@ from Compiler.Parser import (
     set,
     expression, while_)
 from Compiler.Semantic import (
+    OutMode,
     code_generate,
     Opcode,
     Mode
 )
+
+from Machine.Components import IOBuffer
 
 import struct
 
@@ -56,7 +59,17 @@ class visitor():
 
     def setFunctionNode(self, root : node):
         for i in root.children:
-                self.visitDefunNode(i)
+            self.visitDefunNode(i)
+    def setInputNode(self, root : node, buffer : IOBuffer) :
+        counter = 0
+        for i in root.children:
+            if(isinstance(i.children[0], input)):
+                buffer.createInstance(counter)
+                self.identifier.append(identifier_raw(i.children[0].children[0].value,
+                                                      'buffer',
+                                                      counter))
+                counter = counter + 1
+
 
     def visitLetNode(self, nd : node):
         if(len(nd.children) != 2):
@@ -531,93 +544,57 @@ class visitor():
             
     
     def printString(self, addr):
-        self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.PUSH,
-                                                                    Mode.DIRECT_REG,
-                                                                    0xA))
+        addr_end = addr + self.main[addr] & 0xFFFF
         self.main.append(self.generator
                             .generate_one_address_instruction(Opcode.PUSH,
                                                             Mode.DIRECT_REG,
-                                                            0x0))
-        self.main.append(self.generator
-                            .generate_two_address_instruction(Opcode.MOV,
-                                                            Mode.DIRECT_REG,
-                                                            Mode.ADDRESS,
-                                                            0x0,
-                                                            addr))
-        ops = self.generator.generate_althmetic_instruction(Opcode.AND,
-                                                                Mode.DIRECT_REG,
-                                                            Mode.VALUE,
-                                                            0x0,
-                                                            0xFFFF)
-        for i in ops : 
-            self.main.append(i)
-        self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.PUSH,
-                                                            Mode.DIRECT_REG,
-                                                            0x03))
-        self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.PUSH,
-                                                            Mode.DIRECT_REG,
-                                                            0x01))
-        self.main.append(self.generator
-                            .generate_two_address_instruction(Opcode.MOV,
-                                                            Mode.DIRECT_REG,
-                                                            Mode.DIRECT_REG,
-                                                            0x3,
-                                                            0x0))
-        addr1 = len(self.main)
+                                                            0x1))
         self.main.append(self.generator
                             .generate_two_address_instruction(Opcode.MOV,
                                                             Mode.DIRECT_REG,
                                                             Mode.VALUE,
                                                             0x1,
-                                                            0x0))
+                                                            addr + 1))
+
         self.main.append(self.generator
                     .generate_two_address_instruction(Opcode.CMP,
                                                         Mode.DIRECT_REG,
-                                                        Mode.DIRECT_REG,
-                                                        0x3,
-                                                        0x1))
-        addr2 = len(self.main)
+                                                        Mode.VALUE,
+                                                        0x1,
+                                                        addr_end + 1))
         self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.BGT,
+                            .generate_one_address_instruction(Opcode.BEQ,
                                                             Mode.VALUE,
-                                                            0x00))
+                                                            len(self.main) + 5))
+        self.main.append(self.generator.generate_two_address_instruction(Opcode.MOV,
+                                                                         Mode.DIRECT_REG,
+                                                                         Mode.INDIRECT_REG,
+                                                                         0x8,
+                                                                         0x1))
         self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.OUT,
-                                                            Mode.INDIRECT_REG,
-                                                            0x1))
+                            .generate_zero_address_instruction(Opcode.OUT))
+        self.main.append(self.generator.generate_one_address_instruction(Opcode.INC,
+                                                                         Mode.DIRECT_REG,
+                                                                         0x1))
+        
         self.main.append(self.generator
                             .generate_one_address_instruction(Opcode.JMP,
                                                             Mode.VALUE,
-                                                            addr1))
-        self.main[addr2] = self.generator.generate_one_address_instruction(Opcode.BGT,
-                                                                            Mode.VALUE,
-                                                                            len(self.main))
+                                                            len(self.main) - 6))
         self.main.append(self.generator
                             .generate_one_address_instruction(Opcode.POP,
                                                             Mode.DIRECT_REG,
                                                             0x01))
-        self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.POP,
-                                                            Mode.DIRECT_REG,
-                                                            0x03))
-        self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.POP,
-                                                            Mode.DIRECT_REG,
-                                                            0x00))
+        
     def printNumber(self, addr):
         self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.LOAD,
                                                                     Mode.DIRECT_REG,
                                                                     Mode.VALUE,
-                                                                    0xA,
+                                                                    0x8,
                                                                     addr))
         self.main.append(self.generator
-                            .generate_one_address_instruction(Opcode.OUT,
-                                                            Mode.DIRECT_REG,
-                                                            0xA))
+                            .generate_zero_address_instruction(Opcode.OUT))
     def visitPrintNode(self, nd : node):
         if(len(nd.children) != 1):
             raise AttributeError('print <identifier>/ literal / <expression>')
@@ -636,44 +613,69 @@ class visitor():
                                                                     Mode.DIRECT_REG,
                                                                     Mode.DIRECT_REG,
                                                                     0x0,
-                                                                    0xA))
+                                                                    0x8))
                 self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.OUT,
-                                                                    Mode.DIRECT_REG,
-                                                                    0xA))
+                                 .generate_zero_address_instruction(Opcode.OUT))
+                
             elif(isinstance(nd.children[0], identifier)):
                 iden = self.get_lastest_identifier(nd.children[0].value)
-                self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.PUSH,
-                                                                    Mode.DIRECT_REG,
-                                                                    0x0))
-                self.main.append(self.generator.generate_two_address_instruction(Opcode.MOV,
-                                                                                 Mode.DIRECT_REG,
-                                                                                 Mode.ADDRESS,
-                                                                                 0x0, 
-                                                                                 iden.value))
-                self.main.append(self.generator.generate_two_address_instruction(Opcode.LSR,
-                                                                                 Mode.DIRECT_REG,
-                                                                                 Mode.VALUE,
-                                                                                 0x0,
-                                                                                 31))
-                self.main.append(self.generator.generate_two_address_instruction(Opcode.CMP,
-                                                                               Mode.DIRECT_REG,
-                                                                               Mode.VALUE,
-                                                                               0x0,
-                                                                               0x1))
-                self.main.append(self.generator.generate_one_address_instruction(Opcode.BEQ,
-                                                                                 Mode.VALUE,
-                                                                                 len(self.main) + 4))
-                self.printNumber(iden.value)
-                self.main.append(self.generator.generate_one_address_instruction(Opcode.JMP,
-                                                                                 Mode.VALUE,
-                                                                                 len(self.main) + 17))
-                self.printString(iden.value)     
-                self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.POP,
-                                                                    Mode.DIRECT_REG,
-                                                                    0x0))   
+                if(iden.type == 'address'):
+                    self.main.append(self.generator
+                                    .generate_one_address_instruction(Opcode.PUSH,
+                                                                        Mode.DIRECT_REG,
+                                                                        0x0))
+                    self.main.append(self.generator.generate_two_address_instruction(Opcode.MOV,
+                                                                                    Mode.DIRECT_REG,
+                                                                                    Mode.ADDRESS,
+                                                                                    0x0, 
+                                                                                    iden.value))
+                    self.main.append(self.generator.generate_two_address_instruction(Opcode.LSR,
+                                                                                    Mode.DIRECT_REG,
+                                                                                    Mode.VALUE,
+                                                                                    0x0,
+                                                                                    31))
+                    self.main.append(self.generator.generate_two_address_instruction(Opcode.CMP,
+                                                                                Mode.DIRECT_REG,
+                                                                                Mode.VALUE,
+                                                                                0x0,
+                                                                                0x1))
+                    self.main.append(self.generator.generate_one_address_instruction(Opcode.BEQ,
+                                                                                    Mode.VALUE,
+                                                                                    len(self.main) + 2))
+                    self.printNumber(iden.value)
+                    self.main.append(self.generator.generate_one_address_instruction(Opcode.JMP,
+                                                                                    Mode.VALUE,
+                                                                                    len(self.main) + 9))
+                    self.printString(iden.value)     
+                    self.main.append(self.generator
+                                    .generate_one_address_instruction(Opcode.POP,
+                                                                        Mode.DIRECT_REG,
+                                                                        0x0)) 
+                if(iden.type == 'buffer'):
+                    self.main.append(self.generator.generate_out_instruction(Opcode.RB,
+                                                                             OutMode.BUF,
+                                                                             iden.value))
+                    self.main.append(self.generator.generate_two_address_instruction(Opcode.CMP,
+                                                                                     Mode.DIRECT_REG,
+                                                                                     Mode.VALUE,
+                                                                                     0x8,
+                                                                                     0xD))
+                    self.main.append(self.generator.generate_one_address_instruction(Opcode.BEQ,
+                                                                                     Mode.VALUE,
+                                                                                     len(self.main) + 3))
+                    self.main.append(self.generator.generate_zero_address_instruction(Opcode.OUT))
+                    self.main.append(self.generator.generate_one_address_instruction(Opcode.JMP,
+                                                                                     Mode.VALUE,
+                                                                                     len(self.main) - 4))
+                    
+                if(iden.type == 'register'):
+                    self.main.append(self.generator.generate_two_address_instruction(Opcode.MOV, 
+                                                                                     Mode.DIRECT_REG,
+                                                                                     Mode.DIRECT_REG,
+                                                                                     0x8,
+                                                                                     iden.value))
+                    
+                    self.main.append(self.generator.generate_zero_address_instruction(Opcode.OUT))
             else :
                 pass
 
@@ -685,51 +687,33 @@ class visitor():
             raise AttributeError("input <identifier>")
         if(isinstance(nd.children[0], identifier) == False):
             raise TypeError('Require input identifier')
-        # save begin address of string
-        self.main.append(self.generator
-                         .generate_two_address_instruction(Opcode.MOV,
-                                                            Mode.DIRECT_REG,
-                                                            Mode.DIRECT_REG,
-                                                            0x9, 
-                                                            0x8))
-        
+
         self.main.append(self.generator
                          .generate_zero_address_instruction(Opcode.DI))
         
         self.main.append(self.generator
-                         .generate_one_address_instruction(Opcode.IN,
-                                                            Mode.DIRECT_REG,
-                                                            0xA))
+                         .generate_zero_address_instruction(Opcode.IN))
         self.main.append(self.generator
                          .generate_two_address_instruction(Opcode.CMP,
                                                             Mode.DIRECT_REG,
                                                             Mode.VALUE,
-                                                            0xA,
+                                                            0x8,
                                                             0xD))
         addr2 = len(self.main)
-        # neu the, lenh DI phai tao ra 1 instruction dau tien luu do dai cua chuoi, va tang 0x9 len 1
+
         self.main.append(self.generator
                          .generate_one_address_instruction(Opcode.BEQ,
                                                             Mode.VALUE,
                                                             0x0))
         self.main.append(self.generator
-                         .generate_two_address_instruction(Opcode.MOV,
-                                                            Mode.INDIRECT_REG,
-                                                            Mode.DIRECT_REG,
-                                                            0x9,
-                                                            0xA))
-        self.main.append(self.generator
-                         .generate_one_address_instruction(Opcode.INC,
-                                                            Mode.DIRECT_REG,
-                                                            0x9))
+                         .generate_one_address_instruction(Opcode.JMP,
+                                                           Mode.VALUE,
+                                                            addr2 - 2))
         self.main[addr2] = self.generator.generate_one_address_instruction(Opcode.BEQ,
                                                                          Mode.VALUE,
                                                                          len(self.main))
         self.main.append(self.generator
                          .generate_zero_address_instruction(Opcode.EI))
-        # EI dieu chinh 0x9 = 0x8
-
-        # 0x8 : begin heap 0x9 : current pointer to heap
 
     def visitCallNode(self, nd : node):
         if(len(nd.children) != 2):
@@ -844,16 +828,6 @@ class visitor():
                                 .generate_one_address_instruction(Opcode.JMP,
                                                                 Mode.VALUE,
                                                                 iden.value))
-            #  if(len(nd.children[1].children) == 2):
-            #     self.main.append(self.generator
-            #                      .generate_one_address_instruction(Opcode.POP,
-            #                                                         Mode.DIRECT_REG,
-            #                                                         0x6))
-            #  if(len(nd.children[1].children) >= 1):
-            #     self.main.append(self.generator
-            #                      .generate_one_address_instruction(Opcode.POP,
-            #                                                         Mode.DIRECT_REG,
-            #                                                         0x7))
                 
     def visitDefunNode(self, nd : node):
         if(isinstance(nd, defun) == False):
@@ -926,7 +900,13 @@ def generatemodeValue(mode, value):
          return" " + "[ " + hex(value) + " ]"
     if mode == 0x3:
         return " " + hex(value)
-
+def generateIOmodeValue(mode, value):
+    if(mode == 0x0):
+        return " #" + hex(value)
+    if mode == 0x1:
+        return ' buff ' + hex(value)
+    if mode == 0x2:
+        return ' [ ' + value +'] '
 def decodeAlthmeticInstruction(instr1, instr2):
     opcode = instr1 >> 24 & 0xFF
     mode1 = instr1 >> 22 & 0x3
@@ -937,14 +917,17 @@ def decodeInstruction(instruction):
     opcode = instruction >> 24 & 0xFF
     if(opcode == 0x80):
         return "- string length"
-    if opcode in [0, 1, 25, 26, 31]:
+    if opcode in [0, 1, 6, 7, 25, 26, 31]:
         return Opcode.getname(opcode) 
     
-    if opcode in [2, 3, 4, 5, 6, 7, 8, 9, 27]:
+    if opcode in [2, 3, 4, 5, 8, 9, 27]:
         mode = instruction >> 20 & 0xf
         value = instruction & 0xFFFF
         return Opcode.getname(opcode) + generatemodeValue(mode, value)
-    
+    if opcode == 28:
+        mode = instruction >> 20 & 0xf
+        value = instruction & 0xFFFF
+        return Opcode.getname(opcode) + generateIOmodeValue(mode, value)
     if opcode in [10, 11, 19, 20, 21, 22, 23, 24]:
         mode1 = instruction >> 22 & 0x3
         mode2 = instruction >> 20 & 0x3
@@ -977,16 +960,18 @@ def createStackTrace(data):
             f.write('\n')
     f.close()
 
-def translate(root :node):
+def translate(root :node, buffer : IOBuffer):
     visit = visitor()
     visit.main.append(0x0)
     visit.setLiteralAddress(root)
     visit.setFunctionNode(root)
+    visit.setInputNode(root, buffer)
     
     visit.main[0] = len(visit.main)
     visit.visitExpressionNode(root)
     visit.main.append(visit.generator
                       .generate_zero_address_instruction(Opcode.HALT))
+
     filepath = 'test.bin'
     with open(filepath, 'wb') as file:
         for i in visit.main:
