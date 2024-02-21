@@ -3,7 +3,8 @@
     (let b 1)
     (let temp 0)
     (let ret 0)
-    (while ( < b 4000000 )
+    (
+        while ( > 4000000 b )
         (
             set temp b
             set b ( + (a b)) 

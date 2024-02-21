@@ -160,9 +160,6 @@ class visitor():
                                                                             iden.value))
                 else :
                     raise TypeError('Unexpected parameter type on set command')
-            self.main.append(self.generator
-                             .generate_one_address_instruction(Opcode.POP, 
-                                                                 Mode.DIRECT_REG, 0x0))
             
     def visitMathNode(self, nd: node):
         if(len(nd.children) != 1):
@@ -354,7 +351,7 @@ class visitor():
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BGT,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 2))
+                                                                     len(self.main) + 3))
                     
             elif(nd.value == '<'):
                 self.main.append(self.generator
@@ -366,7 +363,7 @@ class visitor():
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BGT,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 2))
+                                                                     len(self.main) + 3))
             elif(nd.value == '='):
                 self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.CMP,
@@ -377,7 +374,7 @@ class visitor():
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BEQ,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 2))
+                                                                     len(self.main) + 3))
                 
             elif(nd.value == '>='):
                 self.main.append(self.generator
@@ -389,11 +386,11 @@ class visitor():
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BGT,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 3))
+                                                                     len(self.main) + 4))
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BEQ,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 2))
+                                                                     len(self.main) + 3))
                 
             elif(nd.value == '<='):
                 self.main.append(self.generator
@@ -405,11 +402,11 @@ class visitor():
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BGT,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 3))
+                                                                     len(self.main) + 4))
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BEQ,
                                                                      Mode.VALUE,
-                                                                     len(self.main) + 2))
+                                                                     len(self.main) + 3))
             else:
                 raise TypeError('Missing logical operation!')
             
@@ -422,13 +419,16 @@ class visitor():
             self.main.append(self.generator
                              .generate_one_address_instruction(Opcode.JMP,
                                                                     Mode.VALUE,
-                                                                    len(self.main) + 1))
+                                                                    len(self.main) + 2))
             self.main.append(self.generator
                              .generate_two_address_instruction(Opcode.LOAD,
                                                                     Mode.DIRECT_REG,
                                                                     Mode.VALUE,
                                                                     0x0,
                                                                     0x1))
+            self.main.append(self.generator.generate_one_address_instruction(Opcode.POP,
+                                                                             Mode.DIRECT_REG,
+                                                                             0x2))
             
     def visitIfNode(self, nd: node):
         if(len(nd.children) < 2 or len(nd.children) > 3) :
@@ -641,7 +641,7 @@ class visitor():
                                                                                 0x1))
                     self.main.append(self.generator.generate_one_address_instruction(Opcode.BEQ,
                                                                                     Mode.VALUE,
-                                                                                    len(self.main) + 2))
+                                                                                    len(self.main) + 4))
                     self.printNumber(iden.value)
                     self.main.append(self.generator.generate_one_address_instruction(Opcode.JMP,
                                                                                     Mode.VALUE,

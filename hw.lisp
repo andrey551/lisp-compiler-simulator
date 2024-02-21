@@ -1,3 +1,4 @@
 (
-    (format "Hello world!")
+    (let t "hello world")
+    (format t)
 )

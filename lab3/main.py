@@ -2,7 +2,7 @@ from Compiler.Lexer import Lexer
 from Compiler.Parser import tokensToNodes, executor
 from Compiler.Generator import translate
 from Machine.Control_Unit import CU
-SRC = 'cat.lisp'
+SRC = 'prob2.lisp'
 MCF = 'test.bin'
 INPUT_FILE = 'in.txt'
 OUTPUT_FILE = 'out.txt'

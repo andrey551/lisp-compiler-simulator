@@ -213,8 +213,5 @@ class code_generate():
         ret = []
         ret.append(0x80000000 | len(value) - 2)
         for i in range(1, len(value) - 1):
-            if value[i] == '\\':
-                ret.append(10)
-            else:
-                ret.append(ord(value[i]))
+            ret.append(ord(value[i]))
         return ret

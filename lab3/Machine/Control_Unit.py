@@ -31,7 +31,8 @@ class CU:
                                          self.decoder.mode_2,
                                          self.decoder.src
                                          )
-            # print(signals)
+            print(self.decoder.opcode)
+            print(signals)
             if isinstance(signals[0], SystemSignal):
                 if signals[0] == SystemSignal.END_PROGRAM:
                     break

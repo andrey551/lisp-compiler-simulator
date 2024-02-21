@@ -114,7 +114,7 @@ class Datapath():
         # print(self.drMux.conn[1])
 
     def activeIndirectAddr(self):
-        self.drMux.conn[1] = self.memory.read(self.registerFile.value)
+        self.drMux.conn[1] = self.memory.read(self.registerFile.addr)
     
     # this is must-be execute action
     # update drMux[2] = self.ir & 0xFFFF
@@ -145,12 +145,10 @@ class Datapath():
         self.ALU.right = self.rightMux.conn[value]
 
     def activeCmp(self, operatorSignal : AluOp):
-        self.ALU.execute(operatorSignal)
+        self.ac.set(self.ALU.execute(operatorSignal))
 
     def activeAC(self, operatorSignal : AluOp):
-        # print("left: ", self.ALU.left, " right: ", self.ALU.right)
         temp = self.ALU.execute(operatorSignal)
-        # print("temp: ", temp)
         self.ac.set(temp)
         self.registerFile.regs[0].set(self.ac.get())
     

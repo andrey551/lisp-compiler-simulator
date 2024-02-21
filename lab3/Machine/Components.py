@@ -47,6 +47,7 @@ class Memory():
         self.length = 4000
 
     def read(self, address: int):
+        print(address)
         return self.data[address]
     def write(self, address, value):
         self.data[address] = value
@@ -115,7 +116,7 @@ class ALU():
     def execute(self, op: AluOp) -> int:
         operant = ALU_OP[op]
         ret = operant(self.left, self.right)
-        ret = self.handle_overflow(ret)
+        # ret = self.handle_overflow(ret)
         self.set_flags(ret)
         return ret
     def set_flags(self, value):
@@ -661,7 +662,7 @@ class GenerateSignal():
                 **loaddata,
                 datapathAction.activeLeftSel : 0x2,
                 datapathAction.activeRightSel : 0x2,
-                datapathAction.activeAC : AluOp.OR,
+                datapathAction.activeCmp : AluOp.OR,
                 datapathAction.activeWriteReg : 0x1,
                 datapathAction.activePcSel : 0x1
             }]
@@ -715,6 +716,7 @@ class GenerateSignal():
                     datapathAction.activeAC: AluOp.LSL if op == Opcode.LSL else AluOp.LSR
                  },
                  {
+                     **loadaddr,
                      datapathAction.activeArSel: 0x2,
                      datapathAction.activeWriteReg : 0x1,
                      datapathAction.activePcSel: 0x1
