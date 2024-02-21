@@ -47,7 +47,6 @@ class Memory():
         self.length = 4000
 
     def read(self, address: int):
-        print(address)
         return self.data[address]
     def write(self, address, value):
         self.data[address] = value
@@ -242,7 +241,8 @@ class OutPort():
             logging.debug('Out: EOL')
         else:
             self.dest.write(chr(data))
-            logging.debug('Out: %s', chr(data))
+            print('data: ', data)
+            logging.debug('Out: %s', data)
     def close(self):
         self.dest.close()
 
@@ -496,7 +496,7 @@ class GenerateSignal():
                 datapathAction.activeDrSel : 0x3,
                 datapathAction.activeLeftSel: 0x2,
                 datapathAction.activeRightSel: 0x2,
-                datapathAction.activeAC: AluOp.OR,
+                datapathAction.activeCmp: AluOp.OR,
                 datapathAction.activeWriteReg: 0x1,
                 datapathAction.activePcSel: 0x1
             }]
@@ -540,11 +540,10 @@ class GenerateSignal():
                 {
                     datapathAction.activeSelDest: 0x4,
                     datapathAction.activeArSel: 0x1,
-                    datapathAction.activeDestIndirectReg: 0x1,
                     **loaddata,
                     datapathAction.activeLeftSel: 0x2,
                     datapathAction.activeRightSel: 0x2,
-                    datapathAction.activeAC: AluOp.OR,
+                    datapathAction.activeCmp: AluOp.OR,
                     datapathAction.activeWriteMem: 0x1
 
                 },
@@ -553,7 +552,7 @@ class GenerateSignal():
                     datapathAction.activeArSel: 0x1,
                     datapathAction.activeLeftSel: 0x0,
                     datapathAction.activeRightSel: 0x1,
-                    datapathAction.activeAC: AluOp.SUB
+                    datapathAction.activeCmp: AluOp.SUB
                 },
                 {
                     datapathAction.activeSelDest: 0x4,
@@ -569,18 +568,19 @@ class GenerateSignal():
                     datapathAction.activeSelDest: src,
                     datapathAction.activeArSel: 0x2,
                     datapathAction.activeSelSrc: 0x4,
-                    datapathAction.activeDrSel: 0x0,
+                    datapathAction.activeSrcIndirectReg: 0x1,
+                    datapathAction.activeDrSel: 0x1,
                     datapathAction.activeLeftSel: 0x2,
                     datapathAction.activeRightSel: 0x2,
-                    datapathAction.activeAC: AluOp.OR,
-                    datapathAction.activeWriteMem: 0x1
+                    datapathAction.activeCmp: AluOp.OR,
+                    datapathAction.activeWriteReg: 0x1
                 },
                 {
                     datapathAction.activeSelDest: 0x4,
                     datapathAction.activeArSel: 0x1,
                     datapathAction.activeLeftSel: 0x0,
                     datapathAction.activeRightSel: 0x1,
-                    datapathAction.activeAC: AluOp.ADD
+                    datapathAction.activeCmp: AluOp.ADD
                 },
                 {
                     datapathAction.activeSelDest: 0x4,
@@ -616,7 +616,7 @@ class GenerateSignal():
                 datapathAction.activeArSel : 0x2,
                 datapathAction.activeLeftSel: 0x2,
                 datapathAction.activeRightSel : 0x2,
-                datapathAction.activeAC : AluOp.ADD if op == Opcode.INC else AluOp.NOT,
+                datapathAction.activeCmp : AluOp.ADD if op == Opcode.INC else AluOp.NOT,
                 **loadwrite,
                 datapathAction.activePcSel : 0x1
             }]
@@ -628,7 +628,7 @@ class GenerateSignal():
                     datapathAction.activeArSel: 0x2,
                     datapathAction.activeLeftSel: 0x2,
                     datapathAction.activeRightSel: 0x2,
-                    datapathAction.activeAC: AluOp.OR,
+                    datapathAction.activeCmp: AluOp.OR,
                     datapathAction.activeWriteReg: 0x1,
                     datapathAction.activePcSel: 0x1
             }
@@ -674,6 +674,7 @@ class GenerateSignal():
                 **loaddata,
                 datapathAction.activeLeftSel: 0x2,
                 datapathAction.activeRightSel : 0x2,
+                datapathAction.activeCmp: AluOp.OR,
                 datapathAction.activeWriteMem: 0x1,
                 datapathAction.activePcSel : 0x1
             }]
@@ -699,7 +700,7 @@ class GenerateSignal():
                 **loaddata,
                 datapathAction.activeLeftSel: 0x2,
                 datapathAction.activeRightSel : 0x2,
-                datapathAction.activeAC : AluOp.OR,
+                datapathAction.activeCmp : AluOp.OR,
                 **loadwrite,
                 datapathAction.activePcSel : 0x1 
             }]

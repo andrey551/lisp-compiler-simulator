@@ -6,13 +6,14 @@
     (
         while ( > 4000000 b )
         (
-            set temp b
-            set b ( + (a b)) 
-            set a temp 
-            ( if ( = 0 ( mod (b 2))) (
+            ( set temp b)
+            ( set b ( + (a b)) )
+            ( set a temp )
+            ( if ( = 0 ( mod (b 2)) ) (
                 set ret ( + ( b ret ))
                 )
             )
+            ( format b )
         )
     )
     (format ret)

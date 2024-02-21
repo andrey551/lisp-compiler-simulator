@@ -198,9 +198,8 @@ class visitor():
             
             if(isinstance(nd.children[0].children[1], expression)):
                 self.main.append(self.generator
-                                 .generate_one_address_instruction(Opcode.PUSH, 
-                                                                     Mode.DIRECT_REG, 
-                                                                     0x0))
+                             .generate_one_address_instruction(Opcode.PUSH, 
+                                                                 Mode.DIRECT_REG, 0x0))
                 self.visitExpressionNode(nd.children[0].children[1])
                 self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.MOV, 
@@ -590,7 +589,7 @@ class visitor():
         self.main.append(self.generator
                                  .generate_two_address_instruction(Opcode.LOAD,
                                                                     Mode.DIRECT_REG,
-                                                                    Mode.VALUE,
+                                                                    Mode.ADDRESS,
                                                                     0x8,
                                                                     addr))
         self.main.append(self.generator
@@ -645,7 +644,7 @@ class visitor():
                     self.printNumber(iden.value)
                     self.main.append(self.generator.generate_one_address_instruction(Opcode.JMP,
                                                                                     Mode.VALUE,
-                                                                                    len(self.main) + 9))
+                                                                                    len(self.main) + 10))
                     self.printString(iden.value)     
                     self.main.append(self.generator
                                     .generate_one_address_instruction(Opcode.POP,

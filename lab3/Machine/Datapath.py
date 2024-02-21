@@ -80,7 +80,7 @@ class Datapath():
         getInt = self.interruptHandler.getState()
         getP = self.ALU.p
         getz = self.ALU.z
-        format = ' tick: %s, AC: %s, AR: %s, DR: %s, PC: %s, rax: %s, rcx: %s, rdx: %s, rbx: %s, rsp: %s, sbp: %s, rsi: %s, rdi: %s, rio: %s,  interrupt: %s, buffer: %s, p : %s, z: %s'
+        format = ' tick: %5s, AC: %8s, AR: %8s, DR: %8s, PC: %8s, rax: %8s, rcx: %8s, rdx: %8s, rbx: %8s, rsp: %8s, sbp: %8s, rsi: %8s, rdi: %8s, rio: %8s,  interrupt: %8s, buffer: %8s, p : %5s, z: %5s'
         logging.debug(format, tick, getAc, getAr, getDr, hex(getPc),  
                       getRax, getRcx, getRdx, getRbx, getRsp, 
                       getSbp, getRsi, getRdi, getRio, 
@@ -156,6 +156,7 @@ class Datapath():
         self.registerFile.regs[self.ar.get()].set(self.ac.get())
     
     def activeWriteMem(self):
+        print("ar, ac: ", self.ar.get(), self.ac.get())
         self.memory.write(self.ar.get(), self.ac.get())
 
     def activePcSel(self, value):

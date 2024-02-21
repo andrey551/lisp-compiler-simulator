@@ -52,3 +52,5 @@ class CU:
                     self.datapath.runCycle(i)
                     self.tu.inc()
             self.datapath.getLog(self.tu.getTick())
+            # if(self.tu.getTick() > 1000):
+            #     break
