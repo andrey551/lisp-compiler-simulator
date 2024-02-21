@@ -1,7 +1,113 @@
-DEBUG:root: tick: 0, AC: 0, AR: 0, DR: 0, PC: 29, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: False
-DEBUG:root: tick: 1, AC: 0, AR: 0, DR: 0, PC: 29, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: False
-DEBUG:root: tick: 4, AC: 0, AR: 0, DR: 0, PC: 30, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
-DEBUG:root: tick: 5, AC: 0, AR: 0, DR: 2, PC: 31, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
-DEBUG:root: tick: 6, AC: 0, AR: 0, DR: 20, PC: 32, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
-DEBUG:root: tick: 7, AC: 0, AR: 0, DR: 0, PC: 0, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
-DEBUG:root: tick: 8, AC: 0, AR: 0, DR: 0, PC: 1, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 0, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: True
+DEBUG:root: tick: 0, AC: 0, AR: 0, DR: 0, PC: 0x2, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: False
+DEBUG:root: tick: 1, AC: 0, AR: 0, DR: 0, PC: 0x2, rax: 0, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 0,  interrupt: IOState.Unlock, buffer: 0, p : False, z: False
+DEBUG:root:In: w
+DEBUG:root: tick: 2, AC: 119, AR: 8, DR: 119, PC: 0x3, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 1, p : True, z: False
+DEBUG:root: tick: 3, AC: 119, AR: 119, DR: 13, PC: 0x4, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 1, p : True, z: False
+DEBUG:root: tick: 4, AC: 119, AR: 119, DR: 13, PC: 0x5, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 1, p : True, z: False
+DEBUG:root: tick: 5, AC: 119, AR: 119, DR: 2, PC: 0x2, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 1, p : True, z: False
+DEBUG:root:In: h
+DEBUG:root: tick: 6, AC: 104, AR: 8, DR: 104, PC: 0x3, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 2, p : True, z: False
+DEBUG:root: tick: 7, AC: 104, AR: 104, DR: 13, PC: 0x4, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 2, p : True, z: False
+DEBUG:root: tick: 8, AC: 104, AR: 104, DR: 13, PC: 0x5, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 2, p : True, z: False
+DEBUG:root: tick: 9, AC: 104, AR: 104, DR: 2, PC: 0x2, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 2, p : True, z: False
+DEBUG:root:In: a
+DEBUG:root: tick: 10, AC: 97, AR: 8, DR: 97, PC: 0x3, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 3, p : True, z: False
+DEBUG:root: tick: 11, AC: 97, AR: 97, DR: 13, PC: 0x4, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 3, p : True, z: False
+DEBUG:root: tick: 12, AC: 97, AR: 97, DR: 13, PC: 0x5, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 3, p : True, z: False
+DEBUG:root: tick: 13, AC: 97, AR: 97, DR: 2, PC: 0x2, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 3, p : True, z: False
+DEBUG:root:In: t
+DEBUG:root: tick: 14, AC: 116, AR: 8, DR: 116, PC: 0x3, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 4, p : True, z: False
+DEBUG:root: tick: 15, AC: 116, AR: 116, DR: 13, PC: 0x4, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 4, p : True, z: False
+DEBUG:root: tick: 16, AC: 116, AR: 116, DR: 13, PC: 0x5, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 4, p : True, z: False
+DEBUG:root: tick: 17, AC: 116, AR: 116, DR: 2, PC: 0x2, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 4, p : True, z: False
+DEBUG:root:In:  
+DEBUG:root: tick: 18, AC: 32, AR: 8, DR: 32, PC: 0x3, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 5, p : True, z: False
+DEBUG:root: tick: 19, AC: 32, AR: 32, DR: 13, PC: 0x4, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 5, p : True, z: False
+DEBUG:root: tick: 20, AC: 32, AR: 32, DR: 13, PC: 0x5, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 5, p : True, z: False
+DEBUG:root: tick: 21, AC: 32, AR: 32, DR: 2, PC: 0x2, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 5, p : True, z: False
+DEBUG:root:In: a
+DEBUG:root: tick: 22, AC: 97, AR: 8, DR: 97, PC: 0x3, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 6, p : True, z: False
+DEBUG:root: tick: 23, AC: 97, AR: 97, DR: 13, PC: 0x4, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 6, p : True, z: False
+DEBUG:root: tick: 24, AC: 97, AR: 97, DR: 13, PC: 0x5, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 6, p : True, z: False
+DEBUG:root: tick: 25, AC: 97, AR: 97, DR: 2, PC: 0x2, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 6, p : True, z: False
+DEBUG:root:In:  
+DEBUG:root: tick: 26, AC: 32, AR: 8, DR: 32, PC: 0x3, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 7, p : True, z: False
+DEBUG:root: tick: 27, AC: 32, AR: 32, DR: 13, PC: 0x4, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 7, p : True, z: False
+DEBUG:root: tick: 28, AC: 32, AR: 32, DR: 13, PC: 0x5, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 7, p : True, z: False
+DEBUG:root: tick: 29, AC: 32, AR: 32, DR: 2, PC: 0x2, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 7, p : True, z: False
+DEBUG:root:In: A
+DEBUG:root: tick: 30, AC: 65, AR: 8, DR: 65, PC: 0x3, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 8, p : True, z: False
+DEBUG:root: tick: 31, AC: 65, AR: 65, DR: 13, PC: 0x4, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 8, p : True, z: False
+DEBUG:root: tick: 32, AC: 65, AR: 65, DR: 13, PC: 0x5, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 8, p : True, z: False
+DEBUG:root: tick: 33, AC: 65, AR: 65, DR: 2, PC: 0x2, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 8, p : True, z: False
+DEBUG:root:In: K
+DEBUG:root: tick: 34, AC: 75, AR: 8, DR: 75, PC: 0x3, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 9, p : True, z: False
+DEBUG:root: tick: 35, AC: 75, AR: 75, DR: 13, PC: 0x4, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 9, p : True, z: False
+DEBUG:root: tick: 36, AC: 75, AR: 75, DR: 13, PC: 0x5, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 9, p : True, z: False
+DEBUG:root: tick: 37, AC: 75, AR: 75, DR: 2, PC: 0x2, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 9, p : True, z: False
+DEBUG:root: tick: 38, AC: 13, AR: 8, DR: 13, PC: 0x3, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 39, AC: 13, AR: 13, DR: 13, PC: 0x4, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 40, AC: 13, AR: 13, DR: 6, PC: 0x6, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 40, AC: 13, AR: 13, DR: 6, PC: 0x7, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Lock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 41, AC: 13, AR: 13, DR: 6, PC: 0x7, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Lock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 41, AC: 13, AR: 13, DR: 6, PC: 0x8, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 42, AC: 13, AR: 13, DR: 6, PC: 0x8, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 43, AC: 119, AR: 8, DR: 119, PC: 0x9, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 44, AC: 119, AR: 119, DR: 13, PC: 0xa, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 45, AC: 119, AR: 119, DR: 13, PC: 0xb, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: w
+DEBUG:root: tick: 46, AC: 119, AR: 119, DR: 119, PC: 0xc, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 47, AC: 119, AR: 119, DR: 8, PC: 0x8, rax: 119, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 119,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 48, AC: 104, AR: 8, DR: 104, PC: 0x9, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 49, AC: 104, AR: 104, DR: 13, PC: 0xa, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 50, AC: 104, AR: 104, DR: 13, PC: 0xb, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: h
+DEBUG:root: tick: 51, AC: 104, AR: 104, DR: 104, PC: 0xc, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 52, AC: 104, AR: 104, DR: 8, PC: 0x8, rax: 104, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 104,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 53, AC: 97, AR: 8, DR: 97, PC: 0x9, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 54, AC: 97, AR: 97, DR: 13, PC: 0xa, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 55, AC: 97, AR: 97, DR: 13, PC: 0xb, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: a
+DEBUG:root: tick: 56, AC: 97, AR: 97, DR: 97, PC: 0xc, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 57, AC: 97, AR: 97, DR: 8, PC: 0x8, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 58, AC: 116, AR: 8, DR: 116, PC: 0x9, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 59, AC: 116, AR: 116, DR: 13, PC: 0xa, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 60, AC: 116, AR: 116, DR: 13, PC: 0xb, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: t
+DEBUG:root: tick: 61, AC: 116, AR: 116, DR: 116, PC: 0xc, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 62, AC: 116, AR: 116, DR: 8, PC: 0x8, rax: 116, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 116,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 63, AC: 32, AR: 8, DR: 32, PC: 0x9, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 64, AC: 32, AR: 32, DR: 13, PC: 0xa, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 65, AC: 32, AR: 32, DR: 13, PC: 0xb, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out:  
+DEBUG:root: tick: 66, AC: 32, AR: 32, DR: 32, PC: 0xc, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 67, AC: 32, AR: 32, DR: 8, PC: 0x8, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 68, AC: 97, AR: 8, DR: 97, PC: 0x9, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 69, AC: 97, AR: 97, DR: 13, PC: 0xa, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 70, AC: 97, AR: 97, DR: 13, PC: 0xb, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: a
+DEBUG:root: tick: 71, AC: 97, AR: 97, DR: 97, PC: 0xc, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 72, AC: 97, AR: 97, DR: 8, PC: 0x8, rax: 97, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 97,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 73, AC: 32, AR: 8, DR: 32, PC: 0x9, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 74, AC: 32, AR: 32, DR: 13, PC: 0xa, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 75, AC: 32, AR: 32, DR: 13, PC: 0xb, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out:  
+DEBUG:root: tick: 76, AC: 32, AR: 32, DR: 32, PC: 0xc, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 77, AC: 32, AR: 32, DR: 8, PC: 0x8, rax: 32, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 32,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 78, AC: 65, AR: 8, DR: 65, PC: 0x9, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 79, AC: 65, AR: 65, DR: 13, PC: 0xa, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 80, AC: 65, AR: 65, DR: 13, PC: 0xb, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: A
+DEBUG:root: tick: 81, AC: 65, AR: 65, DR: 65, PC: 0xc, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 82, AC: 65, AR: 65, DR: 8, PC: 0x8, rax: 65, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 65,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 83, AC: 75, AR: 8, DR: 75, PC: 0x9, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 84, AC: 75, AR: 75, DR: 13, PC: 0xa, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 85, AC: 75, AR: 75, DR: 13, PC: 0xb, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root:Out: K
+DEBUG:root: tick: 86, AC: 75, AR: 75, DR: 75, PC: 0xc, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 87, AC: 75, AR: 75, DR: 8, PC: 0x8, rax: 75, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 75,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 88, AC: 13, AR: 8, DR: 13, PC: 0x9, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : True, z: False
+DEBUG:root: tick: 89, AC: 13, AR: 13, DR: 13, PC: 0xa, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 90, AC: 13, AR: 13, DR: 13, PC: 0xd, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Unlock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 90, AC: 13, AR: 13, DR: 13, PC: 0xe, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Lock, buffer: 10, p : False, z: True
+DEBUG:root: tick: 91, AC: 13, AR: 13, DR: 13, PC: 0xe, rax: 13, rcx: 0, rdx: 0, rbx: 0, rsp: 4000, sbp: 0, rsi: 0, rdi: 0, rio: 13,  interrupt: IOState.Lock, buffer: 10, p : False, z: True

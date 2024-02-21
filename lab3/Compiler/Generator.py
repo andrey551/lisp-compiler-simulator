@@ -580,7 +580,7 @@ class visitor():
         self.main.append(self.generator
                             .generate_one_address_instruction(Opcode.JMP,
                                                             Mode.VALUE,
-                                                            len(self.main) - 6))
+                                                            len(self.main) - 5))
         self.main.append(self.generator
                             .generate_one_address_instruction(Opcode.POP,
                                                             Mode.DIRECT_REG,

@@ -40,13 +40,6 @@ class Datapath():
         self.interruptHandler = None
         self.buffer = IOBuffer()
 
-        # self.state.isAlthmetic = False,
-        # self.state.isDestIndirectReg = False,
-        # self.state.isSrcIndirectReg = False,
-        # self.state.isWriteMem = False,
-        # self.state.isWriteReg = False,
-        # self.state.isCmp = False
-
         self.selDest = 0x0
         self.selSrc = 0x0
         self.PCsel = 0x0
@@ -66,7 +59,8 @@ class Datapath():
         self.drMux.setConn([0x0, 0x0, 0x0, 0x0])
         self.arMux.setConn([0x0, 0x0, 0x0])
         self.leftMux.setConn([0x0, 0x0, 0x0])
-        self.rightMux.setConn([0x0, 0x0, 0x0])
+        self.rightMux.setConn([0x0, 0x1, 0x0])
+        self.registerFile.regs[0x4].set(self.memory.length)
         self.memory.load(src)
     def getLog(self, tick):
         getBuffer = str(len(self.buffer.memory))
@@ -87,7 +81,7 @@ class Datapath():
         getP = self.ALU.p
         getz = self.ALU.z
         format = ' tick: %s, AC: %s, AR: %s, DR: %s, PC: %s, rax: %s, rcx: %s, rdx: %s, rbx: %s, rsp: %s, sbp: %s, rsi: %s, rdi: %s, rio: %s,  interrupt: %s, buffer: %s, p : %s, z: %s'
-        logging.debug(format, tick, getAc, getAr, getDr, getPc,  
+        logging.debug(format, tick, getAc, getAr, getDr, hex(getPc),  
                       getRax, getRcx, getRdx, getRbx, getRsp, 
                       getSbp, getRsi, getRdi, getRio, 
                       getInt, getBuffer, getP, getz)
@@ -105,7 +99,9 @@ class Datapath():
 
     def activeArSel(self, value):
         self.ARsel = value
-        self.ar.set(self.arMux.conn[self.ARsel])
+        self.ar.set(self.arMux.conn[value])
+        self.leftMux.conn[0] = self.ar.get()
+        # print('ar: ', self.ar.get())
     
     def activeSelSrc(self, value):
         self.selSrc = value
@@ -115,6 +111,8 @@ class Datapath():
 
     def activeSrcIndirectReg(self):
         self.drMux.conn[1] = self.memory.read(self.registerFile.value)
+        # print(self.drMux.conn[1])
+
     def activeIndirectAddr(self):
         self.drMux.conn[1] = self.memory.read(self.registerFile.value)
     
@@ -133,6 +131,7 @@ class Datapath():
 
     def activeBufferRead(self, value):
         self.dr.set(self.buffer.loadDataOut(value))
+        self.rightMux.conn[2] = self.dr.get()
 
     def activeOut(self):
         self.interruptHandler.toOut(self.dr.get())
@@ -149,7 +148,10 @@ class Datapath():
         self.ALU.execute(operatorSignal)
 
     def activeAC(self, operatorSignal : AluOp):
-        self.ac.set(self.ALU.execute(operatorSignal))
+        # print("left: ", self.ALU.left, " right: ", self.ALU.right)
+        temp = self.ALU.execute(operatorSignal)
+        # print("temp: ", temp)
+        self.ac.set(temp)
         self.registerFile.regs[0].set(self.ac.get())
     
     def activeWriteReg(self):
@@ -166,8 +168,8 @@ class Datapath():
         if datapathAction.activeSelDest in signal :
             self.activeSelDest(signal[datapathAction.activeSelDest])
 
-        self.arMux.conn[1] = self.registerFile.addr
-        self.arMux.conn[2] = self.registerFile.value
+        self.arMux.conn[2] = self.registerFile.addr
+        self.arMux.conn[1] = self.registerFile.value
 
         if datapathAction.activeDestIndirectReg in signal :
             self.activeDestIndirectReg()
@@ -180,7 +182,8 @@ class Datapath():
 
         if datapathAction.activeIndirectAddr in signal :
             self.activeIndirectAddr()
-
+        if datapathAction.activeSrcIndirectReg in signal :
+            self.activeSrcIndirectReg()
         self.drMux.conn[2] = self.ir.get() & 0xFFFF
 
         if datapathAction.activeAlthmetic in signal :
@@ -191,6 +194,7 @@ class Datapath():
 
         if datapathAction.activeDrSel in signal :
             self.activeDrSel(signal[datapathAction.activeDrSel])
+            self.rightMux.conn[2] = self.dr.get()
         
         if datapathAction.activeBufferRead in signal:
             self.activeBufferRead(signal[datapathAction.activeBufferRead])

@@ -7,8 +7,8 @@ import logging
 
 logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
 
-MAX_INT = 2^30
-MIN_INT = -2^30
+MAX_INT = 2**30
+MIN_INT = -2**30
 
 class Register():
     def __init__(self):
@@ -51,6 +51,7 @@ class Memory():
     def write(self, address, value):
         self.data[address] = value
     def load(self, fileName : str):
+        iter = 0
         with open (fileName, mode = 'rb') as file:
             while True:
                 fileContent = file.read(8)
@@ -58,7 +59,10 @@ class Memory():
                     break
                 long_integer = struct.unpack('<q', fileContent)[0]
                 self.data.append(long_integer)
+                iter = iter + 1
         file.close()
+        for i in range(iter, self.length + 1):
+            self.data.append(0x0)
 '''
 I should use Opcode , but to lazy to replace them 
 basically, this is Enum ALU's operator, which match with ALU_OP
@@ -121,8 +125,10 @@ class ALU():
     @staticmethod
     def handle_overflow(value : int) -> int:
         if value > MAX_INT :
+            print("max overflow")
             return   value - MAX_INT
         if value < MIN_INT :
+            print("min overflow")
             return value - MIN_INT
         return value
     
@@ -220,15 +226,22 @@ class InPort():
             self.ascii_code = [ord(char) for char in list(file.read())]
         file.close()
     def read(self) -> int:
+        if self.iter >= len(self.ascii_code):
+            return 0xd
         self.iter = self.iter + 1
+        logging.debug('In: %s', chr(self.ascii_code[self.iter - 1]))
         return self.ascii_code[self.iter - 1]
     
 class OutPort():
     def __init__(self, dest = None):
         self.dest = open(dest, 'w')
     def write(self, data):
-        self.dest.write(data)
-        logging.debug('Out: %s', data)
+        if data == 47:
+            self.dest.write('\n')
+            logging.debug('Out: EOL')
+        else:
+            self.dest.write(chr(data))
+            logging.debug('Out: %s', chr(data))
     def close(self):
         self.dest.close()
 
@@ -244,7 +257,7 @@ class IOBuffer():
         if(len(self.memory) > self.size):
             raise OverflowError('Buffer overflow')
     def loadDataIn(self, data):
-        self.data.append(data)
+        self.memory.append(data)
         if data == 10:
             self.crtWrite = self.crtWrite + 1
             self.mappedTable[self.crtWrite] = len(self.memory)
@@ -349,10 +362,16 @@ class InstructionDecoder():
             self.type = InstructionType.TwoAttribute
         else:
             self.type = InstructionType.AlthmeticInstruction
-        self.mode_1 = Mode.getMode(value >> 22 & 0x3)
-        self.mode_2 = Mode.getMode(value >> 20 & 0x3)
-        self.dest = value >> 16 & 0xF
-        self.src = value & 0xFFFF
+        if self.opcode.value != 28:
+            self.mode_1 = Mode.getMode(value >> 22 & 0x3)
+            self.mode_2 = Mode.getMode(value >> 20 & 0x3)
+            self.dest = value >> 16 & 0xF
+            self.src = value & 0xFFFF
+        else:
+            self.mode_1 = Mode.getMode(value >> 22 & 0x3)
+            self.mode_2 = OutMode.getMode(value >> 20 & 0x3)
+            self.dest = value >> 16 & 0xF
+            self.src = value & 0xFFFF
 
 '''
     class to save data, which  is reused for instruction more-than-one machine word
@@ -413,7 +432,7 @@ class GenerateSignal():
         if mode == Mode.DIRECT_REG:
             return {
                 datapathAction.activeSelDest : dest,
-                datapathAction.activeArSel : 0x0
+                datapathAction.activeArSel : 0x2
             }
         if mode == Mode.INDIRECT_REG :
             return {
@@ -504,9 +523,9 @@ class GenerateSignal():
 
         if op in  [Opcode.BGT, Opcode.BEQ]:
             if (p and op == Opcode.BGT) or (z and op == Opcode.BEQ) :
-                loaddata : dict = self.generateSrcSignal(mode, src)
                 return [{
-                    **loaddata,
+                    datapathAction.activeSelSrc: src,
+                    datapathAction.activeDrSel: 0x2,
                     datapathAction.activePcSel  : 0x0
                 }]
             else :
@@ -520,6 +539,7 @@ class GenerateSignal():
                 {
                     datapathAction.activeSelDest: 0x4,
                     datapathAction.activeArSel: 0x1,
+                    datapathAction.activeDestIndirectReg: 0x1,
                     **loaddata,
                     datapathAction.activeLeftSel: 0x2,
                     datapathAction.activeRightSel: 0x2,
@@ -569,7 +589,23 @@ class GenerateSignal():
                 }
             ]
         
-        if op in [Opcode.INC, Opcode.NOT]:
+        if op == Opcode.INC:
+            loadaddr : dict = self.generateDestSignal(mode, src)
+            loadwrite : dict = self.generateWriteBackSignal(mode)
+            return [{
+                **loadaddr,
+                datapathAction.activeArSel : 0x1 if mode == Mode.DIRECT_REG else 0x0,
+                datapathAction.activeLeftSel: 0x0,
+                datapathAction.activeRightSel : 0x1,
+                datapathAction.activeAC : AluOp.ADD 
+            },
+            {
+                **loadaddr,
+                **loadwrite,
+                datapathAction.activePcSel : 0x1
+            }]
+        
+        if op == Opcode.NOT:
             loadaddr : dict = self.generateDestSignal(mode, src)
             loaddata : dict = self.generateSrcSignal(mode, src)
             loadwrite : dict = self.generateWriteBackSignal(mode)
@@ -583,6 +619,7 @@ class GenerateSignal():
                 **loadwrite,
                 datapathAction.activePcSel : 0x1
             }]
+        
         if op == Opcode.RB:
             temp : dict = {
                     datapathAction.activeSelSrc: src,
@@ -640,11 +677,13 @@ class GenerateSignal():
                 datapathAction.activePcSel : 0x1
             }]
         if op == Opcode.CMP:
+            
             loadaddr: dict = self.generateDestSignal(mode1, dest)
             loaddata : dict = self.generateSrcSignal(mode2, src)
             return [{
                 **loadaddr,
                 **loaddata,
+                datapathAction.activeArSel: 0x1 if mode1 == Mode.DIRECT_REG else 0x0,
                 datapathAction.activeLeftSel : 0x0,
                 datapathAction.activeRightSel: 0x2,
                 datapathAction.activeCmp : AluOp.SUB,
@@ -749,7 +788,7 @@ class GenerateSignal():
             if type == InstructionType.ZeroAttribute:
                 return self.generateZeroType(op)
             if type == InstructionType.OneAttribute:
-                return self.generateFirtsType(op, mode1, dest, z, p)
+                return self.generateFirtsType(op, mode2, src, z, p)
             if type == InstructionType.TwoAttribute:
                 return self.generateSecondType(op, mode1, mode2, dest, src)
             if type == InstructionType.AlthmeticInstruction:

@@ -165,6 +165,11 @@ class OutMode(Enum):
     REG = 0x0
     BUF = 0x1
     ADDRESS = 0x2
+
+    def getMode(value):
+        for i in OutMode:
+            if(value == i.value):
+                return i
     
 class code_generate():
     def __init__(self):
@@ -208,5 +213,8 @@ class code_generate():
         ret = []
         ret.append(0x80000000 | len(value) - 2)
         for i in range(1, len(value) - 1):
-            ret.append(ord(value[i]))
+            if value[i] == '\\':
+                ret.append(10)
+            else:
+                ret.append(ord(value[i]))
         return ret
