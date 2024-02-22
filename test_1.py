@@ -7,6 +7,7 @@ import tempfile
 
 from lab3.main import run
 
+@pytest.fixture
 @pytest.mark.golden_test("golden/testcase-1.yml")
 def test_1(golden, caplog):
     
