@@ -5,8 +5,6 @@ from typing import Callable
 from Compiler.Semantic import Opcode, Mode, OutMode
 import logging
 
-logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
-
 MAX_INT = 2**30
 MIN_INT = -2**30
 
@@ -243,7 +241,7 @@ class OutPort():
                 logging.debug('Out: EOL')
             else:
                 self.dest.write(chr(data))
-                logging.debug('Out: %s', data)
+                logging.debug('Out: %s', chr(data))
         else:
             self.dest.write(str(data))
             logging.debug('Out: %s', data)

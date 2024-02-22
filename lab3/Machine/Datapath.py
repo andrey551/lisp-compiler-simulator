@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum
 
-logging.basicConfig(filename='debug.log', encoding='utf-8', level=logging.DEBUG)
+
 
 @dataclass
 class branchInstruction(Enum):
@@ -101,7 +101,6 @@ class Datapath():
         self.ARsel = value
         self.ar.set(self.arMux.conn[value])
         self.leftMux.conn[0] = self.ar.get()
-        # print('ar: ', self.ar.get())
     
     def activeSelSrc(self, value):
         self.selSrc = value
@@ -111,7 +110,6 @@ class Datapath():
 
     def activeSrcIndirectReg(self):
         self.drMux.conn[1] = self.memory.read(self.registerFile.value)
-        # print(self.drMux.conn[1])
 
     def activeIndirectAddr(self):
         self.drMux.conn[1] = self.memory.read(self.registerFile.addr)
@@ -156,7 +154,6 @@ class Datapath():
         self.registerFile.regs[self.ar.get()].set(self.ac.get())
     
     def activeWriteMem(self):
-        print("ar, ac: ", self.ar.get(), self.ac.get())
         self.memory.write(self.ar.get(), self.ac.get())
 
     def activePcSel(self, value):

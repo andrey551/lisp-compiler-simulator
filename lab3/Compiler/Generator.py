@@ -945,10 +945,9 @@ def decodeInstruction(instruction):
     return str(Opcode.getname(opcode)) + generatemodeValue(mode1, value1) + generatemodeValue(mode2, value2) 
     
 
-def createStackTrace(data):
-    filepath = 'debug.txt'
+def createStackTrace(data, st):
     textToWrite = None
-    with open(filepath, 'w') as f:
+    with open(st, 'w') as f:
         for i in range(len(data)):
             decode = decodeInstruction(data[i])
             if(decode == 'althmetic'):
@@ -960,7 +959,7 @@ def createStackTrace(data):
             f.write('\n')
     f.close()
 
-def translate(root :node, buffer : IOBuffer):
+def translate(root :node, buffer : IOBuffer, bc : str, st : str):
     visit = visitor()
     visit.main.append(0x0)
     visit.setLiteralAddress(root)
@@ -972,14 +971,14 @@ def translate(root :node, buffer : IOBuffer):
     visit.main.append(visit.generator
                       .generate_zero_address_instruction(Opcode.HALT))
 
-    filepath = 'test.bin'
+    filepath = bc
     with open(filepath, 'wb') as file:
         for i in visit.main:
             bin_data = struct.pack('q', i)
             file.write(bin_data)
     file.close()
 
-    createStackTrace(visit.main)
+    createStackTrace(visit.main, st)
 
 
 

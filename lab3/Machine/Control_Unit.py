@@ -31,8 +31,6 @@ class CU:
                                          self.decoder.mode_2,
                                          self.decoder.src
                                          )
-            print(self.decoder.opcode)
-            print(signals)
             if isinstance(signals[0], SystemSignal):
                 if signals[0] == SystemSignal.END_PROGRAM:
                     break
@@ -55,5 +53,3 @@ class CU:
                     self.datapath.runCycle(i)
                     self.tu.inc()
             self.datapath.getLog(self.tu.getTick())
-            # if(self.tu.getTick() > 1000):
-            #     break
