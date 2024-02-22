@@ -36,7 +36,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest test_1.py
-        pytest test_2.py
-        pytest test_3.py
-        pytest test_4.py
+        pytest
