@@ -2,7 +2,6 @@ from lab3.Compiler.Lexer import Lexer
 from lab3.Compiler.Parser import tokensToNodes, executor
 from lab3.Compiler.Generator import translate
 from lab3.Machine.Control_Unit import CU
-import logging
 
 
 def run(src, machine_code, infile, outfile, stacktrace):

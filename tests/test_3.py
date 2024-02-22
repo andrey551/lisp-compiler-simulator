@@ -1,20 +1,21 @@
-from lab3.main import run
 import pytest
 import os
 import contextlib
 import io
 import logging
+import tempfile
 
-@pytest.fixture
+from lab3.main import run
+
 @pytest.mark.golden_test("golden/testcase-3.yml")
-def test_hw(golden, caplog):
+def test_1(golden, caplog):
+    
     caplog.set_level(logging.DEBUG)
-    source =  "source.lisp"
+    source = "source.lisp"
     input = "in.txt"
     output = "out.txt"
     debug_txt = "debug.txt"
     mcode = "debug.bin"
-    
     
     with open(source, "w", encoding="utf-8") as file:
         file.write(golden["source"])
@@ -28,7 +29,7 @@ def test_hw(golden, caplog):
 
     with open(output, encoding="utf-8") as file:
         out = file.read()
-
+    file.close()
 
     with open(debug_txt, encoding="utf-8") as file:
         stacktrace = file.read()
