@@ -235,13 +235,17 @@ class InPort():
 class OutPort():
     def __init__(self, dest = None):
         self.dest = open(dest, 'w')
+        self.isPrintingStr: bool = False
     def write(self, data):
-        if data == 47:
-            self.dest.write('\n')
-            logging.debug('Out: EOL')
+        if self.isPrintingStr :
+            if data == 47:
+                self.dest.write('\n')
+                logging.debug('Out: EOL')
+            else:
+                self.dest.write(chr(data))
+                logging.debug('Out: %s', data)
         else:
-            self.dest.write(chr(data))
-            print('data: ', data)
+            self.dest.write(str(data))
             logging.debug('Out: %s', data)
     def close(self):
         self.dest.close()
@@ -343,6 +347,7 @@ class SystemSignal(Enum):
     END_PROGRAM = 0x0
     DI = 0x1
     EI = 0x2
+    STR = 0x3
     
 class InstructionDecoder():
     def __init__(self):
@@ -355,7 +360,7 @@ class InstructionDecoder():
     def decode(self, ir: Register):
         value = ir.get()
         self.opcode = Opcode.get(value >> 24 & 0xFF)
-        if self.opcode.value in [ 0, 1, 6, 7, 25, 26, 31]:
+        if self.opcode.value in [ 0, 1, 6, 7, 25, 26, 29, 31]:
             self.type = InstructionType.ZeroAttribute
         elif self.opcode.value in [2, 3, 4, 5, 6, 7, 8, 9, 27, 28]:
             self.type = InstructionType.OneAttribute
@@ -507,6 +512,11 @@ class GenerateSignal():
                 datapathAction.activeOut: 0x1,
                 datapathAction.activePcSel: 0x1
             }]
+        if op == Opcode.STR:
+            return [
+                SystemSignal.STR, {
+                datapathAction.activePcSel: 0x1
+            }]
     def generateFirtsType(self, 
                               op : Opcode,
                               mode : Mode,
@@ -633,18 +643,18 @@ class GenerateSignal():
                     datapathAction.activePcSel: 0x1
             }
             if mode == OutMode.REG:
-                return [{
+                return [ SystemSignal.STR ,{
                     datapathAction.activeDrSel: 0x0,
                     **temp
                 }]
             if mode == OutMode.ADDRESS:
-                return [{
+                return [SystemSignal.STR ,{
                     datapathAction.activeIndirectAddr: 0x1,
                     datapathAction.activeDrSel: 0x1,
                     **temp
                 }]
             if mode == OutMode.BUF:
-                return[{
+                return[SystemSignal.STR ,{
                     datapathAction.activeBufferRead: src,
                     **temp
                 }]

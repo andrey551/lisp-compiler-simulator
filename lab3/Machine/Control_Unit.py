@@ -38,15 +38,18 @@ class CU:
                     break
                 if signals[0] == SystemSignal.DI:
                     self.datapath.interruptHandler.unlock()
-                    self.datapath.runCycle(signals[1])
-                    self.datapath.getLog(self.tu.getTick())
-                    self.tu.inc()
+                    
                 if signals[0] == SystemSignal.EI:
                     self.datapath.interruptHandler.lock()
+                    self.datapath.interruptHandler.outport.isPrintingStr = False
                     self.datapath.buffer.resetRead()
-                    self.datapath.runCycle(signals[1])
-                    self.datapath.getLog(self.tu.getTick())
-                    self.tu.inc()
+
+                if signals[0] == SystemSignal.STR:
+                    self.datapath.interruptHandler.outport.isPrintingStr = True
+                
+                self.datapath.runCycle(signals[1])
+                self.datapath.getLog(self.tu.getTick())
+                self.tu.inc()
             else:
                 for i in signals:
                     self.datapath.runCycle(i)

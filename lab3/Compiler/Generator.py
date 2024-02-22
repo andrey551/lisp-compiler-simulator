@@ -544,6 +544,7 @@ class visitor():
     
     def printString(self, addr):
         addr_end = addr + self.main[addr] & 0xFFFF
+        self.main.append(self.generator.generate_zero_address_instruction(Opcode.STR))
         self.main.append(self.generator
                             .generate_one_address_instruction(Opcode.PUSH,
                                                             Mode.DIRECT_REG,
@@ -644,7 +645,7 @@ class visitor():
                     self.printNumber(iden.value)
                     self.main.append(self.generator.generate_one_address_instruction(Opcode.JMP,
                                                                                     Mode.VALUE,
-                                                                                    len(self.main) + 10))
+                                                                                    len(self.main) + 11))
                     self.printString(iden.value)     
                     self.main.append(self.generator
                                     .generate_one_address_instruction(Opcode.POP,
@@ -916,7 +917,7 @@ def decodeInstruction(instruction):
     opcode = instruction >> 24 & 0xFF
     if(opcode == 0x80):
         return "- string length"
-    if opcode in [0, 1, 6, 7, 25, 26, 31]:
+    if opcode in [0, 1, 6, 7, 25, 26, 29, 31]:
         return Opcode.getname(opcode) 
     
     if opcode in [2, 3, 4, 5, 8, 9, 27]:
