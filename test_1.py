@@ -1,16 +1,15 @@
+import logging
 import pytest
-import os
 import contextlib
 import io
-import logging
-import tempfile
 
 from lab3.main import run
 
 @pytest.mark.golden_test("golden/testcase-1.yml")
 def test_1(golden, caplog):
-    
+
     caplog.set_level(logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     source = "temp/source1.lisp"
     input = "temp/in1.txt"
     output = "temp/out1.txt"
@@ -23,9 +22,8 @@ def test_1(golden, caplog):
     with open(input, "w", encoding="utf-8") as file:
         file.write(golden["input"])
     file.close()
-    with contextlib.redirect_stdout(io.StringIO()) as stdout:
-        run(source, mcode, input, output, debug_txt)
-    file.close()
+
+    run(source, mcode, input, output, debug_txt)
 
     with open(output, encoding="utf-8") as file:
         out = file.read()

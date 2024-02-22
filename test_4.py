@@ -1,9 +1,7 @@
+import logging
 import pytest
-import os
 import contextlib
 import io
-import logging
-import tempfile
 
 from lab3.main import run
 

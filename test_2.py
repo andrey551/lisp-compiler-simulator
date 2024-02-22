@@ -1,9 +1,7 @@
+import logging
 import pytest
-import os
 import contextlib
 import io
-import logging
-import tempfile
 
 from lab3.main import run
 
@@ -36,4 +34,4 @@ def test_1(golden, caplog):
 
     assert out == golden.out["output"]
     assert stacktrace == golden.out["machine_code"]
-    # assert caplog.text == golden.out["log"
+    # assert caplog.text == golden.out["log"]

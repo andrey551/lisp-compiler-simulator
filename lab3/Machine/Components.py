@@ -222,6 +222,7 @@ class InPort():
         self.iter = 0
         with open(src , 'r') as file :
             self.ascii_code = [ord(char) for char in list(file.read())]
+
     def read(self) -> int:
         if self.iter >= len(self.ascii_code):
             return 0xd
