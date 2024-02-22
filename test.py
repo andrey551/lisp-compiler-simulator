@@ -5,6 +5,7 @@ import contextlib
 import io
 import logging
 
+@pytest.fixture
 @pytest.mark.golden_test("golden/testcase-3.yml")
 def test_hw(golden, caplog):
     caplog.set_level(logging.DEBUG)
