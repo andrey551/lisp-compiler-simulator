@@ -12,9 +12,6 @@ on:
 permissions:
   contents: read
 
-defaults:
-  run:
-    working-directory: ./lab3
 
 jobs:
   build:
