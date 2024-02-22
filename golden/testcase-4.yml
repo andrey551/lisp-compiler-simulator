@@ -21,7 +21,7 @@ source: |-
 
 input: |-
 
-machine_code:
+machine_code: |
   0x0 0x8 NOP
   0x1 0x1 NOP
   0x2 0x1 NOP
@@ -104,7 +104,7 @@ machine_code:
   0x4f 0x1f000000 HALT
 
 
-output: |
+output: |-
   4613732
 
 log: |

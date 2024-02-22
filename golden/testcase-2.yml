@@ -6,7 +6,7 @@ source: |-
 
 input: |-
   AKKKKKKKKKKKKKKKKKKKKKKK
-machine_code:
+machine_code: |
   0x0 0x1 NOP
   0x1 0x19000000 DI
   0x2 0x6000000 IN
@@ -23,7 +23,7 @@ machine_code:
   0xd 0x1a000000 EI
   0xe 0x1f000000 HALT
 
-output: |
+output: |-
   AKKKKKKKKKKKKKKKKKKKKKKK
 
 log: |

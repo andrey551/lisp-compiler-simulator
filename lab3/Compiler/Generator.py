@@ -1,4 +1,4 @@
-from Compiler.Parser import (
+from lab3.Compiler.Parser import (
     call, defun, 
     if_clause, integer, 
     logical_operant, 
@@ -9,14 +9,14 @@ from Compiler.Parser import (
     identifier, let,
     set,
     expression, while_)
-from Compiler.Semantic import (
+from lab3.Compiler.Semantic import (
     OutMode,
     code_generate,
     Opcode,
     Mode
 )
 
-from Machine.Components import IOBuffer
+from lab3.Machine.Components import IOBuffer
 
 import struct
 
@@ -976,7 +976,6 @@ def translate(root :node, buffer : IOBuffer, bc : str, st : str):
         for i in visit.main:
             bin_data = struct.pack('q', i)
             file.write(bin_data)
-    file.close()
 
     createStackTrace(visit.main, st)
 

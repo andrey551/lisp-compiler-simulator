@@ -1,4 +1,4 @@
-from Compiler.Semantic import *
+from lab3.Compiler.Semantic import *
 import re
 class Lexer:
     def __init__(self, source):
@@ -11,6 +11,7 @@ class Lexer:
             for i in re.split('(")', line):
                 if i != '':
                     temp.append(i)
+        self.source.close()
         i = 0
         while i < len(temp):
             if temp[i] == '"':

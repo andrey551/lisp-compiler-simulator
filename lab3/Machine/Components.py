@@ -2,7 +2,7 @@ import struct
 from dataclasses import dataclass
 from enum import Enum
 from typing import Callable
-from Compiler.Semantic import Opcode, Mode, OutMode
+from lab3.Compiler.Semantic import Opcode, Mode, OutMode
 import logging
 
 MAX_INT = 2**30
@@ -222,7 +222,6 @@ class InPort():
         self.iter = 0
         with open(src , 'r') as file :
             self.ascii_code = [ord(char) for char in list(file.read())]
-        file.close()
     def read(self) -> int:
         if self.iter >= len(self.ascii_code):
             return 0xd

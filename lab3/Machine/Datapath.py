@@ -1,4 +1,4 @@
-from Machine.Components import (
+from lab3.Machine.Components import (
     Register, Memory, 
     RegisterFile, Mux, 
     ALU, InterruptHandler, 

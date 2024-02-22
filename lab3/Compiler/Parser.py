@@ -1,8 +1,6 @@
 from typing import Any
 from abc import ABC, abstractmethod
 
-from Compiler.Semantic import LOGICAL_OPERATOR, MATH_OPERATOR, KEYWORD, is_String, is_Integer, is_Boolean
-
 class node(ABC):
     def __init__(self, tokens, name = None, value = None):
         self.tokens = tokens
