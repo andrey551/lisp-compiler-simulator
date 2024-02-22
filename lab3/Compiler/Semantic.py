@@ -142,6 +142,7 @@ class Opcode(Enum):
     ASR = 21
     INC = 27
     RB = 28
+    STR = 29
 
     def getname(value):
         for i in Opcode:

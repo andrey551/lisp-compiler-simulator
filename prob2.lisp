@@ -13,7 +13,6 @@
                 set ret ( + ( b ret ))
                 )
             )
-            ( format b )
         )
     )
     (format ret)

@@ -67,7 +67,7 @@ class Datapath():
         getAc = self.ac.get()
         getAr = self.ar.get()
         getDr = self.dr.get()
-        getPc = self.pc.get()
+        getPc = self.pc.get() - 1
         getRax = self.registerFile.regs[0].get()
         getRcx = self.registerFile.regs[1].get()
         getRdx = self.registerFile.regs[2].get()

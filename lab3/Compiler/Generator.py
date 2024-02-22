@@ -148,7 +148,7 @@ class visitor():
                         self.main.append(self.generator
                                         .generate_two_address_instruction(Opcode.STORE,
                                                                         Mode.DIRECT_REG,
-                                                                        Mode.VALUE,
+                                                                        Mode.ADDRESS,
                                                                         0x0,
                                                                         iden.value))
                     else:
@@ -312,7 +312,7 @@ class visitor():
                                  .generate_two_address_instruction(Opcode.MOV, 
                                                                      Mode.DIRECT_REG, 
                                                                      Mode.DIRECT_REG, 
-                                                                     0x0, 0x2))
+                                                                     0x2, 0x0))
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.POP, 
                                                                      Mode.DIRECT_REG, 
@@ -449,7 +449,7 @@ class visitor():
                                                                     Mode.VALUE,
                                                                     after_exp))
                 self.visitExpressionNode(nd.children[1])
-                after_exp = len(self.main) + 1
+                after_exp = len(self.main)
                 self.main[first_inst_jmp] = self.generator.generate_one_address_instruction(Opcode.BEQ,
                                                                                             Mode.VALUE,
                                                                                             after_exp)
