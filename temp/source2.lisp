@@ -1,0 +1,4 @@
+(
+    ( input t )
+    ( format t )
+)

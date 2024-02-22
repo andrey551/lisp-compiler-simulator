@@ -11,11 +11,11 @@ from lab3.main import run
 def test_1(golden, caplog):
     
     caplog.set_level(logging.DEBUG)
-    source = "source.lisp"
-    input = "in.txt"
-    output = "out.txt"
-    debug_txt = "debug.txt"
-    mcode = "debug.bin"
+    source = "temp/source2.lisp"
+    input = "temp/in2.txt"
+    output = "temp/out2.txt"
+    debug_txt = "temp/debug2.txt"
+    mcode = "temp/debug2.bin"
     
     with open(source, "w", encoding="utf-8") as file:
         file.write(golden["source"])
