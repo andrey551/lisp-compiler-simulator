@@ -102,11 +102,11 @@ class visitor():
     def visitSetNode(self, nd : node):
         if(len(nd.children) != 2):
             raise AttributeError('Expected 2 params on set command!')
-        elif(isinstance(nd.children[0], identifier) == False):
+        elif(isinstance(nd.children[0], identifier) is False):
             raise TypeError('first parameter on set - variable')
         else:
             iden = self.get_lastest_identifier(nd.children[0].value)
-            if(iden == None):
+            if(iden is None):
                 raise KeyError(nd.children[0].value, " is not declared yet!")
             else :
                 if(isinstance( nd.children[1], literal)):
@@ -122,7 +122,7 @@ class visitor():
                                                                     .address))
                 elif(isinstance(nd.children[1], identifier)):
                     iden1 = self.get_lastest_identifier(nd.children[1].value)
-                    if(iden1 != None):
+                    if(iden1 is not None):
                         self.main.append(self.generator
                                          .generate_one_address_instruction(Opcode.PUSH,
                                                                     Mode.DIRECT_REG,
@@ -394,12 +394,12 @@ class visitor():
                                                                     0x2))
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BGT,
-                                                                     Mode.VALUE,
-                                                                     len(self.main) + 4))
+                                                                Mode.VALUE,
+                                                                len(self.main) + 4))
                 self.main.append(self.generator
                                  .generate_one_address_instruction(Opcode.BEQ,
-                                                                     Mode.VALUE,
-                                                                     len(self.main) + 3))
+                                                                Mode.VALUE,
+                                                                len(self.main) + 3))
                 
             elif(nd.value == '<='):
                 self.main.append(self.generator
@@ -712,7 +712,7 @@ class visitor():
     def visitInputNode(self, nd : node):
         if(len(nd.children) != 1):
             raise AttributeError("input <identifier>")
-        if(isinstance(nd.children[0], identifier) == False):
+        if(isinstance(nd.children[0], identifier) is False):
             raise TypeError('Require input identifier')
 
         self.main.append(self.generator
@@ -762,7 +762,7 @@ class visitor():
                                                                     .address))
                  elif(isinstance(nd.children[1].children[0], identifier)):
                   iden = self.get_lastest_identifier(nd.children[1].children[0].value)
-                  if(iden != None):
+                  if(iden is not None):
                       if(iden.type == 'address'):
                           self.main.append(self.generator
                                       .generate_two_address_instruction(Opcode.MOV,
@@ -811,7 +811,7 @@ class visitor():
                                                                     .address))
                  elif(isinstance(nd.children[1].children[1], identifier)):
                   iden = self.get_lastest_identifier(nd.children[1].children[1].value)
-                  if(iden != None):
+                  if(iden is not None):
                       if(iden.type == 'address'):
                           self.main.append(self.generator
                                       .generate_two_address_instruction(Opcode.MOV,
@@ -850,14 +850,14 @@ class visitor():
                                                             0x3,
                                                             len(self.main) + 2))
              iden = self.get_lastest_identifier(nd.children[0].value)
-             if(iden != None):
+             if(iden is not None):
                 self.main.append(self.generator
                                 .generate_one_address_instruction(Opcode.JMP,
                                                                 Mode.VALUE,
                                                                 iden.value))
                 
     def visitDefunNode(self, nd : node):
-        if(isinstance(nd, defun) == False):
+        if(isinstance(nd, defun) is False):
             return
         self.identifier.append(
             identifier_raw(nd.children[0].value, 'address', len(self.main)))

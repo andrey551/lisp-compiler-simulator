@@ -1,4 +1,4 @@
-from lab3.Compiler.Semantic import *
+from lab3.Compiler.Semantic import SPECIAL_CHARACTER, to_Token
 import re
 class Lexer:
     def __init__(self, source):
