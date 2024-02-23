@@ -6,7 +6,7 @@ import io
 from lab3.main import run
 
 @pytest.mark.golden_test("golden/testcase-3.yml")
-def test_1(golden, caplog):
+def test_3(golden, caplog):
 
     caplog.set_level(logging.DEBUG)
     
