@@ -330,7 +330,7 @@ jobs:
         pip install pytest-golden
         python -m pip install coverage
         python3 -m pip install mypy
-        pip install ruff==0.0.47
+        pip install ruff
         pip install poetry
         poetry install
 
@@ -339,6 +339,8 @@ jobs:
         poetry run pytest . -v --update-goldens
         poetry run coverage run -m pytest
         poetry run coverage report
+    - name: Run Ruff linters
+      run: poetry run ruff check .
 
 ```
 
