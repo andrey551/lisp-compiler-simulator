@@ -187,7 +187,8 @@ class code_generate():
                              src2):
         if(mode_1.value > 1):
             raise ValueError('opcode <reg> <reg/address>')
-        return op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2
+        t1 = (mode_1.value << 2 | mode_2.value) << 20 
+        return op.value << 24 | t1 |  src1 << 16 | src2
     def generate_out_instruction(self,
                                 op: Opcode,
                                 mode : OutMode,
@@ -202,9 +203,11 @@ class code_generate():
         if(mode_1.value > 1):
            raise ValueError('opcode <reg> <reg/address>')
         if(mode_2 in [Mode.DIRECT_REG, Mode.INDIRECT_REG, Mode.ADDRESS]):
-            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 | src2]
+            t1 = (mode_1.value << 2 | mode_2.value) << 20
+            return [op.value << 24 | t1 |  src1 << 16 | src2]
         else:
-            return [op.value << 24 | (mode_1.value << 2 | mode_2.value) << 20 |  src1 << 16 , src2]
+            t1 = (mode_1.value << 2 | mode_2.value) << 20
+            return [op.value << 24 | t1 |  src1 << 16 , src2]
         
     def generate_int(self, value):
         return int(value) & 0x7FFFFFFF

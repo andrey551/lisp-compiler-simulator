@@ -594,7 +594,7 @@ class GenerateSignal():
                 datapathAction.activeArSel : 0x2,
                 datapathAction.activeLeftSel: 0x2,
                 datapathAction.activeRightSel : 0x2,
-                datapathAction.activeCmp : AluOp.ADD if op == Opcode.INC else AluOp.NOT,
+                datapathAction.activeCmp: AluOp.ADD if op == Opcode.INC else AluOp.NOT,
                 **loadwrite,
                 datapathAction.activePcSel : 0x1
             }]
@@ -692,7 +692,7 @@ class GenerateSignal():
                     datapathAction.activeArSel: 0x1,
                     datapathAction.activeLeftSel: 0x0,
                     datapathAction.activeRightSel: 0x2,
-                    datapathAction.activeAC: AluOp.LSL if op == Opcode.LSL else AluOp.LSR
+            datapathAction.activeAC: AluOp.LSL if op == Opcode.LSL else AluOp.LSR
                  },
                  {
                      **loadaddr,

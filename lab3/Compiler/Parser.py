@@ -141,7 +141,8 @@ class loop(node):
 # expression can have multiple children
 # literal have 0 child node
 # identifier is node itself
-# math operator have 1 child node , which is expression , for example: + (1 2 3 4), / (1 2)
+# math operator have 1 child node , which is expression , 
+#        for example: + (1 2 3 4), / (1 2)
 # logical operator have 2 child node
 # if have 2 or 3 node
 # set have 2 node
@@ -276,7 +277,8 @@ class executor():
                 self.chain.pop(iterator + 1)
                 counter = counter + 1
                 if(counter > 3):
-                    raise BufferError('Number of parameter is not higher than 3 in if clause!')
+                    t = 'Number of parameter is not higher than 3 in if clause!'
+                    raise BufferError(t)
         elif(self.chain[iterator].params >= 0):
             self.chain[iterator].children = []
             for i in range(self.chain[iterator].params):

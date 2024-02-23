@@ -1,4 +1,6 @@
-from lab3.Machine.Components import GenerateSignal, InstructionDecoder, SystemSignal, TimingUnit
+from lab3.Machine.Components import (
+    GenerateSignal, InstructionDecoder, SystemSignal, TimingUnit
+)
 from lab3.Machine.Datapath import Datapath
 
 

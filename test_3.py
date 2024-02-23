@@ -1,7 +1,5 @@
 import logging
 import pytest
-import contextlib
-import io
 
 from lab3.main import run
 
