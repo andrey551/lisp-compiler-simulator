@@ -30,6 +30,7 @@ jobs:
         pip install pytest-golden
         pip install flake8 pytest
         pip install poetry
+        poetry env use python3.7
         poetry install
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Lint with flake8
