@@ -1,5 +1,4 @@
 import logging
-
 import pytest
 import contextlib
 import io
@@ -8,8 +7,9 @@ from lab3.main import run
 
 @pytest.mark.golden_test("golden/testcase-2.yml")
 def test_1(golden, caplog):
-    
+
     caplog.set_level(logging.DEBUG)
+    
     source = "temp/source2.lisp"
     input = "temp/in2.txt"
     output = "temp/out2.txt"
@@ -18,13 +18,12 @@ def test_1(golden, caplog):
     
     with open(source, "w", encoding="utf-8") as file:
         file.write(golden["source"])
-    
+    file.close()
     with open(input, "w", encoding="utf-8") as file:
         file.write(golden["input"])
+    file.close()
 
-    with contextlib.redirect_stdout(io.StringIO()) as stdout:
-        run(source, mcode, input, output, debug_txt)
-    
+    run(source, mcode, input, output, debug_txt)
 
     with open(output, encoding="utf-8") as file:
         out = file.read()
@@ -35,4 +34,4 @@ def test_1(golden, caplog):
 
     assert out == golden.out["output"]
     assert stacktrace == golden.out["machine_code"]
-    # assert caplog.text == golden.out["log"]
+    assert caplog.text == golden.out["log"]
