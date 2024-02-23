@@ -60,6 +60,8 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
+          python3 -m pip install mypy
+          pip install ruff==0.0.47
 
       - name: Check code formatting with Ruff
         run: poetry run ruff format --check .
