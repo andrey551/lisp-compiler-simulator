@@ -18,9 +18,6 @@ class CU:
         self.datapath.ir.set(self.datapath.memory.data[self.datapath.pc.get()])
         self.decoder.decode(self.datapath.ir)
         
-    '''
-    fetch IR(CU) -> generate signal(CU) -> execute(Datapath) -> writeback(datapath)
-    '''
     def run(self):
         while(1):
             self.fetch()
