@@ -9,7 +9,7 @@ from lab3.main import run
 def test_1(golden, caplog):
 
     caplog.set_level(logging.DEBUG)
-    # logging.basicConfig(level=logging.DEBUG)
+    
     source = "temp/source1.lisp"
     input = "temp/in1.txt"
     output = "temp/out1.txt"

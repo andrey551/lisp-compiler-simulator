@@ -472,11 +472,11 @@ class GenerateSignal():
     def generateZeroType(self, 
                  op :Opcode ):
         if op == Opcode.RET :
-            return {
+            return [{
                 datapathAction.activeSelSrc : 0x3,
                 datapathAction.activeDrSel: 0x0,
                 datapathAction.activePcSel : 0x0,
-            }
+            }]
         if op == Opcode.NOP:
             return [{
                 datapathAction.activePcSel : 0x1

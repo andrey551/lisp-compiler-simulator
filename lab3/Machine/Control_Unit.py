@@ -46,7 +46,6 @@ class CU:
                     self.datapath.interruptHandler.outport.isPrintingStr = True
                 
                 self.datapath.runCycle(signals[1])
-                self.datapath.getLog(self.tu.getTick())
                 self.tu.inc()
             else:
                 for i in signals:
