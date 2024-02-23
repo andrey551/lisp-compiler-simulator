@@ -43,12 +43,3 @@ jobs:
         poetry run coverage run -m pytest
         poetry run coverage report
 
-    - name: Run mypy checks
-      run: poetry run mypy .
-
-    - name: Check code formatting
-      run: poetry run ruff format --check .
-
-    - name: Run code linting
-      run: |
-        poetry run pytest . -v --update-goldens

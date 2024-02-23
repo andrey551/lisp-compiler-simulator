@@ -160,36 +160,6 @@ class GeneralRegister(Enum):
         
         raise ValueError("enum type not found!")
     
-# @dataclass
-# class pcSelSignal(Enum):
-#     branch = 0x0
-#     plusOne = 0x1a
-
-# @dataclass
-# class drSelSignal(Enum):
-#     regSignal = 0x0
-#     memSignal = 0x1
-#     valueSignal = 0x2
-#     inSignal = 0x3
-
-# @dataclass
-# class leftSignal(Enum):
-#     arSgnal = 0x0
-#     acSignal = 0x1
-#     zero = 0x2
-
-# @dataclass
-# class rightSignal(Enum):
-#     zero = 0x0
-#     oneSignal = 0x1
-#     drSignal = 0x2
-    
-# @dataclass 
-# class arSelSignal(Enum):
-#     memSignal = 0x0
-#     valueSignal = 0x1
-#     addrSignal = 0x2
-    
 class RegisterFile():
     def __init__(self):
         self.regs  = []
