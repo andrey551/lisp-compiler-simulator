@@ -157,9 +157,19 @@
 
 ### Набор инструкций
 * Инструкция 0-типа: [`RET`, `NOP`, `HALT`, `DI`, `EI`, `IN`, `OUT`, `STR`]
+`format : [opcode]`
 * Инструкция 1-типа: [`JMP`, `CALL`, `BGT`, `BEQ`, `PUSH`, `POP`, `INC`, `NOT`, `RB`]
+`format : [opcode | mode | src]`
+`mode : src in [Прямой регистр, Косвенный регистр, Адрес, Ценить]`
 * Инструкция 2-типа: [`LOAD`, `STORE`, `CMP`, `MOV`, `LSL`, `LSR`]
+`format : [opcode| mode1|mode2| dest|src]`
+`mode1 : dest in [Прямой регистр, Косвенный регистр]`
+`mode2 : src in [Прямой регистр, Косвенный регистр, Адрес, Ценить]`
 * Инструкция Арифметического типа: [ `ADD`, `SUB`, `MUL`, `DIV`, `MOD`, `AND`, `OR`]
+`format : [opcode| mode1|mode2| dest|src]` 
+`mode1 : dest in [Прямой регистр, Косвенный регистр]`
+`mode2 : src in [Прямой регистр, Косвенный регистр, Адрес, Ценить]`
+`if mode2 == Ценить, then it's saved on the next instruction -> instruction with length 2 machine word`
 
 |Инструкция|Длина (машинные слова)|Количество тиков|Код|Примечание|
 |----------|---------|--------|--------|-------------------------------|
